@@ -10,6 +10,7 @@ import {
     LogOut,
     Menu,
     MessageSquare,
+    Share2,
     Sparkles,
     X,
 } from 'lucide-react';
@@ -22,6 +23,7 @@ const sidebarItems = [
     { label: 'Experience', href: '/admin/experiences', icon: Briefcase },
     { label: 'Education', href: '/admin/education', icon: GraduationCap },
     { label: 'Projects', href: '/admin/projects', icon: FolderKanban },
+    { label: 'Social Links', href: '/admin/social-links', icon: Share2 },
     { label: 'Messages', href: '/admin/messages', icon: MessageSquare },
 ];
 

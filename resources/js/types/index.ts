@@ -99,6 +99,16 @@ export type DashboardStats = {
     unreadMessages: number;
 };
 
+export type SocialLink = {
+    id: number;
+    platform: string;
+    url: string;
+    is_active: boolean;
+    sort_order: number;
+    created_at: string;
+    updated_at: string;
+};
+
 export type FlashMessages = {
     success?: string;
     error?: string;

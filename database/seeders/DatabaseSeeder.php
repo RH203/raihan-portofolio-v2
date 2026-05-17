@@ -8,6 +8,7 @@ use App\Models\Experience;
 use App\Models\Hero;
 use App\Models\Project;
 use App\Models\Skill;
+use App\Models\SocialLink;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -252,6 +253,22 @@ class DatabaseSeeder extends Seeder
             ContactMessage::updateOrCreate(
                 ['email' => $msg['email'], 'subject' => $msg['subject']],
                 $msg
+            );
+        }
+
+        // Social Links
+        $socialLinks = [
+            ['platform' => 'github', 'url' => 'https://github.com/raihan', 'is_active' => true, 'sort_order' => 1],
+            ['platform' => 'linkedin', 'url' => 'https://linkedin.com/in/raihan', 'is_active' => true, 'sort_order' => 2],
+            ['platform' => 'email', 'url' => 'mailto:hello@example.com', 'is_active' => true, 'sort_order' => 3],
+            ['platform' => 'whatsapp', 'url' => 'https://wa.me/628123456789', 'is_active' => true, 'sort_order' => 4],
+            ['platform' => 'instagram', 'url' => 'https://instagram.com/raihan', 'is_active' => true, 'sort_order' => 5],
+        ];
+
+        foreach ($socialLinks as $link) {
+            SocialLink::updateOrCreate(
+                ['platform' => $link['platform']],
+                $link
             );
         }
     }

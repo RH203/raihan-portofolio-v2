@@ -1,9 +1,14 @@
-import { GitHubIcon, LinkedInIcon } from '@/components/icons';
+import { getPlatformConfig } from '@/components/portfolio/social-icons';
+import type { SocialLink } from '@/types';
 import { useForm } from '@inertiajs/react';
-import { Mail, MessageCircle, Send } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { type FormEvent } from 'react';
 
-export function ContactSection() {
+interface ContactSectionProps {
+    socialLinks: SocialLink[];
+}
+
+export function ContactSection({ socialLinks }: ContactSectionProps) {
     const { data, setData, post, processing, errors, reset, wasSuccessful } = useForm({
         name: '',
         email: '',
@@ -39,44 +44,31 @@ export function ContactSection() {
                             </p>
                         </div>
 
-                        <div className="space-y-3">
-                            <a href="mailto:hello@example.com" className="flex items-center gap-3 p-3 rounded-lg hover:bg-white transition-colors group">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-50 text-primary-600 group-hover:bg-primary-100 transition-colors">
-                                    <Mail className="h-4 w-4" />
-                                </div>
-                                <div>
-                                    <p className="text-sm font-medium text-surface-700">Email</p>
-                                    <p className="text-xs text-surface-400">hello@example.com</p>
-                                </div>
-                            </a>
-                            <a href="https://wa.me/628123456789" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg hover:bg-white transition-colors group">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-50 text-accent-600 group-hover:bg-accent-50 transition-colors">
-                                    <MessageCircle className="h-4 w-4" />
-                                </div>
-                                <div>
-                                    <p className="text-sm font-medium text-surface-700">WhatsApp</p>
-                                    <p className="text-xs text-surface-400">+62 812 3456 789</p>
-                                </div>
-                            </a>
-                            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg hover:bg-white transition-colors group">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600 group-hover:bg-blue-100 transition-colors">
-                                    <LinkedInIcon className="h-4 w-4" />
-                                </div>
-                                <div>
-                                    <p className="text-sm font-medium text-surface-700">LinkedIn</p>
-                                    <p className="text-xs text-surface-400">linkedin.com/in/raihan</p>
-                                </div>
-                            </a>
-                            <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg hover:bg-white transition-colors group">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-surface-100 text-surface-700 group-hover:bg-surface-200 transition-colors">
-                                    <GitHubIcon className="h-4 w-4" />
-                                </div>
-                                <div>
-                                    <p className="text-sm font-medium text-surface-700">GitHub</p>
-                                    <p className="text-xs text-surface-400">github.com/raihan</p>
-                                </div>
-                            </a>
-                        </div>
+                        {socialLinks.length > 0 && (
+                            <div className="space-y-2">
+                                {socialLinks.map((link) => {
+                                    const config = getPlatformConfig(link.platform);
+                                    const Icon = config.icon;
+                                    return (
+                                        <a
+                                            key={link.id}
+                                            href={link.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center gap-3 p-3 rounded-lg hover:bg-white transition-colors group"
+                                        >
+                                            <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${config.color} transition-colors`}>
+                                                <Icon className="h-4 w-4" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium text-surface-700">{config.label}</p>
+                                                <p className="text-xs text-surface-400 truncate max-w-[200px]">{link.url.replace(/^https?:\/\//, '')}</p>
+                                            </div>
+                                        </a>
+                                    );
+                                })}
+                            </div>
+                        )}
                     </div>
 
                     {/* Contact form */}

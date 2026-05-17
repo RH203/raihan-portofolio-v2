@@ -8,6 +8,7 @@ use App\Models\Experience;
 use App\Models\Hero;
 use App\Models\Project;
 use App\Models\Skill;
+use App\Models\SocialLink;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -21,6 +22,7 @@ class PortfolioController extends Controller
             'experiences' => Experience::orderBy('sort_order')->get(),
             'education' => Education::orderBy('sort_order')->get(),
             'projects' => Project::orderBy('sort_order')->get(),
+            'socialLinks' => SocialLink::where('is_active', true)->orderBy('sort_order')->get(),
         ]);
     }
 
