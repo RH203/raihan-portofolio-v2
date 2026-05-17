@@ -1,0 +1,288 @@
+name: 🚀 Deploy — Production
+
+on:
+  push:
+    branches:
+      - master
+
+  workflow_dispatch:
+    inputs:
+      comment:
+        description: "Optional command: migrate / seed SeederName / migrate seed SeederName"
+        required: false
+        default: ""
+
+jobs:
+  deploy:
+    name: Deploy master to Production
+    runs-on: ubuntu-latest
+    environment: production
+
+    env:
+      DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
+      PHP_FPM_SERVICE: ${{ vars.PHP_FPM_SERVICE }}
+      APP_URL: ${{ vars.APP_URL }}
+      BRANCH: ${{ github.ref_name }}
+      COMMENT: ${{ github.event.inputs.comment }}
+
+    steps:
+      # ──────────────────────────────────────────
+      # 0. PRE-FLIGHT
+      # ──────────────────────────────────────────
+      - name: 🧪 Check VPS connection
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            set -e
+            echo "Connected as: $(whoami)"
+            echo "Host: $(hostname)"
+            echo "Deploy path: ${{ env.DEPLOY_PATH }}"
+            php -v
+            nginx -v
+            systemctl status ${{ env.PHP_FPM_SERVICE }} --no-pager || true
+
+      # ──────────────────────────────────────────
+      # 1. SYNC CODE
+      # ──────────────────────────────────────────
+      - name: 📥 Pull latest code from master
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            set -e
+            cd ${{ env.DEPLOY_PATH }}
+
+            echo "→ Putting app in maintenance mode"
+            php artisan down || true
+
+            echo "→ Syncing branch: ${{ env.BRANCH }}"
+            git fetch origin "${{ env.BRANCH }}"
+            git checkout "${{ env.BRANCH }}"
+            git reset --hard "origin/${{ env.BRANCH }}"
+
+            echo "✅ Code synced successfully"
+
+      # ──────────────────────────────────────────
+      # 2. INSTALL PHP DEPENDENCIES
+      # ──────────────────────────────────────────
+      - name: 🎼 Install Composer dependencies
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            set -e
+            cd ${{ env.DEPLOY_PATH }}
+
+            composer install \
+              --no-dev \
+              --prefer-dist \
+              --optimize-autoloader \
+              --no-interaction
+
+            echo "✅ Composer dependencies installed"
+
+      # ──────────────────────────────────────────
+      # 3. BUILD FRONTEND WITH NVM
+      # ──────────────────────────────────────────
+      - name: 🏗️ Build frontend assets
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            set -e
+            cd ${{ env.DEPLOY_PATH }}
+
+            if [ -f package.json ]; then
+              export NVM_DIR="$HOME/.nvm"
+              [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+
+              nvm install --lts
+              nvm use --lts
+
+              echo "Node: $(node -v)"
+              echo "npm: $(npm -v)"
+
+              rm -rf public/build
+              npm ci || npm install
+              npm run build
+
+              echo "✅ Frontend assets built successfully"
+            else
+              echo "⏭️ No package.json found, skipping frontend build"
+            fi
+
+      # ──────────────────────────────────────────
+      # 4. FIX PERMISSIONS
+      # ──────────────────────────────────────────
+      - name: 🔐 Fix file permissions
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            set -e
+            cd ${{ env.DEPLOY_PATH }}
+
+            chown -R root:www-data ${{ env.DEPLOY_PATH }}
+            chmod -R 775 ${{ env.DEPLOY_PATH }}/storage
+            chmod -R 775 ${{ env.DEPLOY_PATH }}/bootstrap/cache
+
+            echo "✅ Permissions fixed"
+
+      # ──────────────────────────────────────────
+      # 5. CLEAR CACHE
+      # ──────────────────────────────────────────
+      - name: 🧹 Clear Laravel cache
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            set -e
+            cd ${{ env.DEPLOY_PATH }}
+
+            php artisan optimize:clear
+
+            echo "✅ Laravel cache cleared"
+
+      # ──────────────────────────────────────────
+      # 6. DATABASE — MIGRATE OPTIONAL
+      # ──────────────────────────────────────────
+      - name: 🗄️ Run database migrations if requested
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            set -e
+            cd ${{ env.DEPLOY_PATH }}
+
+            COMMENT="${{ env.COMMENT }}"
+
+            if echo "$COMMENT" | grep -qi "migrate"; then
+              MIGRATIONS=$(echo "$COMMENT" | grep -oE '[0-9]{4}_[0-9]{2}_[0-9]{2}_[0-9]{6}_[A-Za-z0-9_]+\.php' || true)
+
+              if [ -n "$MIGRATIONS" ]; then
+                for file in $MIGRATIONS; do
+                  echo "→ Running migration file: $file"
+                  php artisan migrate --path="database/migrations/$file" --force
+                done
+              else
+                echo "→ Running all pending migrations"
+                php artisan migrate --force
+              fi
+
+              echo "✅ Migrations completed"
+            else
+              echo "⏭️ No migration requested, skipping"
+            fi
+
+      # ──────────────────────────────────────────
+      # 7. DATABASE — SEED OPTIONAL
+      # ──────────────────────────────────────────
+      - name: 🌱 Run database seeders if requested
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            set -e
+            cd ${{ env.DEPLOY_PATH }}
+
+            COMMENT="${{ env.COMMENT }}"
+
+            if echo "$COMMENT" | grep -qi "seed"; then
+              SEEDERS=$(echo "$COMMENT" | grep -oE '[A-Za-z0-9_\\]+Seeder' || true)
+
+              if [ -n "$SEEDERS" ]; then
+                for seeder in $SEEDERS; do
+                  echo "→ Running seeder: $seeder"
+                  php artisan db:seed --class="$seeder" --force
+                done
+              else
+                echo "→ Running default DatabaseSeeder"
+                php artisan db:seed --force
+              fi
+
+              echo "✅ Seeding completed"
+            else
+              echo "⏭️ No seeder requested, skipping"
+            fi
+
+      # ──────────────────────────────────────────
+      # 8. FINALIZE LARAVEL
+      # ──────────────────────────────────────────
+      - name: 🔗 Storage link and warm application cache
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            set -e
+            cd ${{ env.DEPLOY_PATH }}
+
+            php artisan storage:link || true
+
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+
+            echo "✅ Application cache warmed up"
+
+      # ──────────────────────────────────────────
+      # 9. RELOAD SERVICES
+      # ──────────────────────────────────────────
+      - name: 🔄 Reload Nginx and PHP-FPM
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            set -e
+
+            nginx -t
+            systemctl reload nginx
+            systemctl restart ${{ env.PHP_FPM_SERVICE }}
+
+            echo "✅ Services reloaded"
+
+      # ──────────────────────────────────────────
+      # 10. BRING APP ONLINE
+      # ──────────────────────────────────────────
+      - name: ✅ Bring app back online
+        if: always()
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            cd ${{ env.DEPLOY_PATH }}
+            php artisan up || true
+            echo "✅ Production deployment completed"
