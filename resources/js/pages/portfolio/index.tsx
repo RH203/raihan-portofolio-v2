@@ -6,7 +6,7 @@ import { HeroSection } from '@/components/portfolio/hero-section';
 import { Navbar } from '@/components/portfolio/navbar';
 import { PortfolioSection } from '@/components/portfolio/portfolio-section';
 import { SkillsSection } from '@/components/portfolio/skills-section';
-import type { Education, Experience, Hero, Project, Skill } from '@/types';
+import type { Education, Experience, Hero, Project, Skill, SocialLink } from '@/types';
 import { Head } from '@inertiajs/react';
 
 interface Props {
@@ -15,9 +15,10 @@ interface Props {
     experiences: Experience[];
     education: Education[];
     projects: Project[];
+    socialLinks: SocialLink[];
 }
 
-export default function PortfolioIndex({ hero, skills, experiences, education, projects }: Props) {
+export default function PortfolioIndex({ hero, skills, experiences, education, projects, socialLinks }: Props) {
     return (
         <>
             <Head>
@@ -33,10 +34,10 @@ export default function PortfolioIndex({ hero, skills, experiences, education, p
                 <ExperienceSection experiences={experiences} />
                 <EducationSection education={education} />
                 <PortfolioSection projects={projects} />
-                <ContactSection />
+                <ContactSection socialLinks={socialLinks} />
             </main>
 
-            <Footer />
+            <Footer socialLinks={socialLinks} />
         </>
     );
 }

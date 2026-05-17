@@ -1,7 +1,12 @@
-import { GitHubIcon, LinkedInIcon } from '@/components/icons';
-import { Heart, Mail } from 'lucide-react';
+import { SocialIcon } from '@/components/portfolio/social-icons';
+import type { SocialLink } from '@/types';
+import { Heart } from 'lucide-react';
 
-export function Footer() {
+interface FooterProps {
+    socialLinks: SocialLink[];
+}
+
+export function Footer({ socialLinks }: FooterProps) {
     const currentYear = new Date().getFullYear();
 
     return (
@@ -16,17 +21,13 @@ export function Footer() {
                             Built with <Heart className="h-3 w-3 text-danger-500 fill-danger-500" aria-hidden="true" /> using Laravel &amp; React
                         </p>
                     </div>
-                    <div className="flex items-center gap-4">
-                        <a href="mailto:hello@example.com" className="text-surface-400 hover:text-primary-600 transition-colors" aria-label="Email">
-                            <Mail className="h-5 w-5" />
-                        </a>
-                        <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="text-surface-400 hover:text-primary-600 transition-colors" aria-label="GitHub">
-                            <GitHubIcon className="h-5 w-5" />
-                        </a>
-                        <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="text-surface-400 hover:text-primary-600 transition-colors" aria-label="LinkedIn">
-                            <LinkedInIcon className="h-5 w-5" />
-                        </a>
-                    </div>
+                    {socialLinks.length > 0 && (
+                        <div className="flex items-center gap-2">
+                            {socialLinks.map((link) => (
+                                <SocialIcon key={link.id} link={link} size="sm" />
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
         </footer>
