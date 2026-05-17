@@ -13,6 +13,7 @@ export function HeroSection({ hero }: HeroSectionProps) {
     return (
         <section id="home" className="relative min-h-screen flex items-center pt-20" aria-labelledby="hero-heading">
             {/* Subtle background gradient */}
+            tas taas from staging
             <div className="absolute inset-0 bg-gradient-to-br from-primary-50/50 via-white to-accent-50/30 -z-10" aria-hidden="true" />
             <div className="absolute top-20 right-10 w-72 h-72 bg-primary-100/40 rounded-full blur-3xl -z-10" aria-hidden="true" />
             <div className="absolute bottom-20 left-10 w-96 h-96 bg-accent-50/40 rounded-full blur-3xl -z-10" aria-hidden="true" />
