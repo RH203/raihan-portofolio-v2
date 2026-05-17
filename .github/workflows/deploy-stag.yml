@@ -4,13 +4,21 @@ on:
   push:
     branches:
       - staging
-
   workflow_dispatch:
     inputs:
       comment:
         description: "Optional command: migrate / seed SeederName / migrate seed SeederName"
         required: false
         default: ""
+
+  issue_comment:
+    types:
+      - created
+
+  permissions:
+    contents: read
+    pull-requests: read
+    issues: write
 
 jobs:
   deploy:
