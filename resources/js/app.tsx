@@ -2,7 +2,7 @@ import '../css/app.css';
 
 import { InertiaFlashToasts, ToastProvider } from '@/components/ui/toast';
 import { createInertiaApp } from '@inertiajs/react';
-import { hydrateRoot } from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -13,8 +13,7 @@ createInertiaApp({
     },
     setup({ el, App, props }) {
         if (el) {
-            hydrateRoot(
-                el,
+            createRoot(el).render(
                 <ToastProvider>
                     <App {...props} />
                     <InertiaFlashToasts />
