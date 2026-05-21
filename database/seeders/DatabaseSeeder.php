@@ -19,10 +19,10 @@ class DatabaseSeeder extends Seeder
     {
         // Admin user
         User::updateOrCreate(
-            ['email' => 'admin@portfolio.com'],
+            ['email' => config('account.username_admin')],
             [
                 'name' => 'Admin',
-                'password' => Hash::make('password'),
+                'password' => config('account.password_admin'),
             ]
         );
 
