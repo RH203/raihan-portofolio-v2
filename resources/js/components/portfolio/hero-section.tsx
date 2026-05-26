@@ -1,5 +1,6 @@
 import type { Hero } from '@/types';
-import { ArrowDown, Download, Send } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { ArrowDown, Code2, Download, Send } from 'lucide-react';
 
 interface HeroSectionProps {
     hero: Hero | null;
@@ -8,7 +9,75 @@ interface HeroSectionProps {
 export function HeroSection({ hero }: HeroSectionProps) {
     if (!hero) return null;
 
+    const isDevelopMode = hero.develop_mode;
     const scrollTo = (id: string) => document.querySelector(id)?.scrollIntoView({ behavior: 'smooth' });
+
+    if (isDevelopMode) {
+        return (
+            <section id="home" className="relative flex min-h-screen items-center overflow-hidden px-6 py-20" aria-labelledby="hero-heading">
+                <div
+                    className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,_rgba(34,211,238,0.18),_transparent_28%),linear-gradient(135deg,_#020617_0%,_#0f172a_45%,_#111827_100%)]"
+                    aria-hidden="true"
+                />
+                <div className="absolute left-10 top-16 -z-10 h-48 w-48 rounded-full bg-cyan-400/15 blur-3xl" aria-hidden="true" />
+                <div className="absolute bottom-10 right-10 -z-10 h-72 w-72 rounded-full bg-emerald-300/10 blur-3xl" aria-hidden="true" />
+
+                <div className="mx-auto w-full max-w-5xl">
+                    <div className="rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-[0_24px_80px_rgba(0,0,0,0.35)] backdrop-blur md:p-12">
+                        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.22em] text-cyan-200">
+                            <span className="inline-block h-2 w-2 rounded-full bg-cyan-300 shadow-[0_0_16px_rgba(103,232,249,0.9)]" />
+                            Develop Mode
+                        </div>
+
+                        <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
+                            <div>
+                                <h1 id="hero-heading" className="text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
+                                    We&apos;re polishing things up. It&apos;ll be back looking sharper soon.
+                                </h1>
+                                <p className="mt-5 max-w-2xl text-lg leading-relaxed text-slate-300">
+                                    This page is currently in development mode. A few parts are being refined, tested, and cleaned up before the full experience goes live.
+                                </p>
+                                <div className="mt-8 flex flex-wrap gap-3 text-sm text-slate-300">
+                                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">UI polishing</span>
+                                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">layout tuning</span>
+                                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">quality check</span>
+                                </div>
+                            </div>
+
+                            <div className="rounded-[1.5rem] border border-white/10 bg-slate-950/70 p-5 text-sm text-slate-300">
+                                <div className="mb-4 flex items-center gap-3">
+                                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-400/10 text-cyan-300">
+                                        <Code2 className="h-5 w-5" />
+                                    </div>
+                                    <div>
+                                        <p className="font-semibold text-white">Build Status</p>
+                                        <p className="text-slate-400">Relaxed pace, still shipping.</p>
+                                    </div>
+                                </div>
+                                <div className="space-y-3 rounded-2xl border border-white/8 bg-white/4 p-4">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-slate-400">mode</span>
+                                        <span className="font-medium text-cyan-200">development</span>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-slate-400">status</span>
+                                        <span className="font-medium text-emerald-300">work in progress</span>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-slate-400">visibility</span>
+                                        <span className="font-medium text-white">hero only</span>
+                                    </div>
+                                </div>
+                                <p className="mt-4 text-xs leading-relaxed text-slate-500">
+                                    Check back soon. The rest is being prepared so it launches in a more polished state.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        );
+    }
 
     return (
         <section id="home" className="relative min-h-screen flex items-center pt-20" aria-labelledby="hero-heading">

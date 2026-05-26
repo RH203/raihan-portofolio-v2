@@ -23,6 +23,7 @@ export type Hero = {
     secondary_cta_text: string;
     photo_url: string | null;
     cv_url: string | null;
+    develop_mode: boolean;
     created_at: string;
     updated_at: string;
 };
