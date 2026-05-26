@@ -30,7 +30,8 @@ export function ContactSection({ socialLinks }: ContactSectionProps) {
                     <p className="text-primary-600 font-medium text-sm tracking-wide uppercase mb-2">Get In Touch</p>
                     <h2 id="contact-heading" className="text-3xl sm:text-4xl font-bold text-surface-900">Contact Me</h2>
                     <p className="mt-3 text-surface-500 max-w-xl mx-auto">
-                        Interested in working together? Let&apos;s talk.
+                        Available for freelance Laravel, back-end, full-stack, and Flutter mobile development.
+                        Let&apos;s discuss your project and build something great together.
                     </p>
                 </div>
 
