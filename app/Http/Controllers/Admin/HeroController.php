@@ -26,6 +26,7 @@ class HeroController extends Controller
             'description' => 'required|string|max:1000',
             'primary_cta_text' => 'required|string|max:50',
             'secondary_cta_text' => 'required|string|max:50',
+            'develop_mode' => 'nullable|boolean',
             'photo' => 'nullable|image|max:2048',
             'cv' => 'nullable|file|mimes:pdf,doc,docx|max:5120',
         ]);
@@ -53,6 +54,7 @@ class HeroController extends Controller
         }
 
         unset($validated['photo'], $validated['cv']);
+        $validated['develop_mode'] = $request->boolean('develop_mode');
         $hero->fill($validated);
         $hero->save();
 
