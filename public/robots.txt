@@ -1,2 +1,8 @@
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /admin
+Disallow: /admin/
+
+# Sitemap location
+# TODO: Replace with your actual production domain before deploying.
+Sitemap: https://www.raihanfirdaus.tech/sitemap.xml

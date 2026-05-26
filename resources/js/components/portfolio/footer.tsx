@@ -23,7 +23,7 @@ export function Footer({ socialLinks, isDevelopMode = false }: FooterProps) {
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                     <div className="text-center md:text-left">
                         <p className={cn('text-sm', isDevelopMode ? 'text-slate-300' : 'text-surface-500')}>
-                            &copy; {currentYear} Raihan. All rights reserved.
+                            &copy; {currentYear} Raihan Firdaus. All rights reserved.
                         </p>
                         <p className={cn('mt-1 flex items-center justify-center gap-1 text-xs md:justify-start', isDevelopMode ? 'text-slate-500' : 'text-surface-400')}>
                             Built with <Heart className="h-3 w-3 text-danger-500 fill-danger-500" aria-hidden="true" /> using Laravel &amp; React
