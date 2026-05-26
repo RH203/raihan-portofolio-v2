@@ -18,6 +18,9 @@ export function PortfolioSection({ projects, isDevelopMode = false }: PortfolioS
     if (projects.length === 0) return null;
 
     return (
+        // The outer div provides the #projects anchor for SEO-friendly navigation
+        // while preserving the existing #portfolio anchor on the section itself.
+        <div id="projects">
         <section id="portfolio" className={cn('py-20', isDevelopMode ? 'bg-[#08111f]' : undefined)} aria-labelledby="portfolio-heading">
             <div className="mx-auto max-w-6xl px-6">
                 <div className="text-center mb-14">
@@ -77,8 +80,11 @@ export function PortfolioSection({ projects, isDevelopMode = false }: PortfolioS
                                 {project.thumbnail_url ? (
                                     <img
                                         src={`/storage/${project.thumbnail_url}`}
-                                        alt={project.title}
+                                        alt={`${project.title} — project by Raihan Firdaus`}
                                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                        loading="lazy"
+                                        width={480}
+                                        height={192}
                                     />
                                 ) : (
                                     <div className="flex items-center justify-center h-full">
@@ -165,5 +171,6 @@ export function PortfolioSection({ projects, isDevelopMode = false }: PortfolioS
                 </div>
             </div>
         </section>
+        </div>
     );
 }

@@ -133,7 +133,14 @@ export function HeroSection({ hero }: HeroSectionProps) {
                         <div className="relative">
                             <div className="w-64 h-64 sm:w-80 sm:h-80 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center overflow-hidden">
                                 {hero.photo_url ? (
-                                    <img src={`/storage/${hero.photo_url}`} alt={hero.name} className="w-full h-full object-cover" />
+                                    <img
+                                        src={`/storage/${hero.photo_url}`}
+                                        alt="Raihan Firdaus — Full-Stack Developer and Flutter Developer based in Surabaya, Indonesia"
+                                        className="w-full h-full object-cover"
+                                        loading="lazy"
+                                        width={320}
+                                        height={320}
+                                    />
                                 ) : (
                                     <span className="text-7xl sm:text-8xl font-bold text-primary-400/60">
                                         {hero.name.charAt(0)}
