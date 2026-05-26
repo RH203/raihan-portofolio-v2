@@ -19,6 +19,8 @@ interface Props {
 }
 
 export default function PortfolioIndex({ hero, skills, experiences, education, projects, socialLinks }: Props) {
+    const isDevelopMode = hero?.develop_mode ?? false;
+
     return (
         <>
             <Head>
@@ -26,18 +28,26 @@ export default function PortfolioIndex({ hero, skills, experiences, education, p
                 <meta name="description" content={hero?.description || 'Personal portfolio website'} />
             </Head>
 
-            <Navbar />
+            {isDevelopMode ? (
+                <main>
+                    <HeroSection hero={hero} />
+                </main>
+            ) : (
+                <div className="min-h-screen">
+                    <Navbar isDevelopMode={false} />
 
-            <main>
-                <HeroSection hero={hero} />
-                <SkillsSection skills={skills} />
-                <ExperienceSection experiences={experiences} />
-                <EducationSection education={education} />
-                <PortfolioSection projects={projects} />
-                <ContactSection socialLinks={socialLinks} />
-            </main>
+                    <main>
+                        <HeroSection hero={hero} />
+                        <SkillsSection skills={skills} isDevelopMode={false} />
+                        <ExperienceSection experiences={experiences} />
+                        <EducationSection education={education} />
+                        <PortfolioSection projects={projects} isDevelopMode={false} />
+                        <ContactSection socialLinks={socialLinks} />
+                    </main>
 
-            <Footer socialLinks={socialLinks} />
+                    <Footer socialLinks={socialLinks} isDevelopMode={false} />
+                </div>
+            )}
         </>
     );
 }

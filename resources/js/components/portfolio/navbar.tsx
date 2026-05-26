@@ -12,7 +12,11 @@ const navItems = [
     { label: 'Contact', href: '#contact' },
 ];
 
-export function Navbar() {
+interface NavbarProps {
+    isDevelopMode?: boolean;
+}
+
+export function Navbar({ isDevelopMode = false }: NavbarProps) {
     const [scrolled, setScrolled] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
     const [activeSection, setActiveSection] = useState('home');
@@ -48,13 +52,19 @@ export function Navbar() {
         <header
             className={cn(
                 'fixed top-0 left-0 right-0 z-40 transition-all duration-300',
-                scrolled ? 'bg-white/90 backdrop-blur-md shadow-sm border-b border-surface-100' : 'bg-transparent',
+                isDevelopMode
+                    ? scrolled
+                        ? 'border-b border-cyan-400/20 bg-slate-950/80 shadow-sm shadow-cyan-950/20 backdrop-blur-md'
+                        : 'bg-transparent'
+                    : scrolled
+                      ? 'bg-white/90 backdrop-blur-md shadow-sm border-b border-surface-100'
+                      : 'bg-transparent',
             )}
             role="banner"
         >
             <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4" aria-label="Main navigation">
-                <Link href="/" className="text-xl font-bold text-surface-900 tracking-tight">
-                    Raihan Firdaus<span className="text-primary-600">.</span>
+                <Link href="/" className={cn('text-xl font-bold tracking-tight', isDevelopMode ? 'text-white' : 'text-surface-900')}>
+                    Raihan Firdaus<span className={isDevelopMode ? 'text-cyan-400' : 'text-primary-600'}>.</span>
                 </Link>
 
                 {/* Desktop nav */}
@@ -65,9 +75,13 @@ export function Navbar() {
                                 onClick={() => handleClick(href)}
                                 className={cn(
                                     'px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200',
-                                    activeSection === href.slice(1)
-                                        ? 'text-primary-600 bg-primary-50'
-                                        : 'text-surface-600 hover:text-surface-900 hover:bg-surface-50',
+                                    isDevelopMode
+                                        ? activeSection === href.slice(1)
+                                            ? 'bg-cyan-400/12 text-cyan-300'
+                                            : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                                        : activeSection === href.slice(1)
+                                          ? 'text-primary-600 bg-primary-50'
+                                          : 'text-surface-600 hover:text-surface-900 hover:bg-surface-50',
                                 )}
                             >
                                 {label}
@@ -79,7 +93,10 @@ export function Navbar() {
                 {/* Mobile toggle */}
                 <button
                     onClick={() => setMobileOpen(!mobileOpen)}
-                    className="md:hidden rounded-lg p-2 text-surface-600 hover:bg-surface-100 transition-colors"
+                    className={cn(
+                        'md:hidden rounded-lg p-2 transition-colors',
+                        isDevelopMode ? 'text-slate-200 hover:bg-white/5' : 'text-surface-600 hover:bg-surface-100',
+                    )}
                     aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
                     aria-expanded={mobileOpen}
                 >
@@ -89,7 +106,12 @@ export function Navbar() {
 
             {/* Mobile nav */}
             {mobileOpen && (
-                <div className="md:hidden border-t border-surface-100 bg-white/95 backdrop-blur-md">
+                <div
+                    className={cn(
+                        'md:hidden border-t backdrop-blur-md',
+                        isDevelopMode ? 'border-cyan-400/15 bg-slate-950/95' : 'border-surface-100 bg-white/95',
+                    )}
+                >
                     <ul className="flex flex-col px-4 py-3 space-y-1" role="list">
                         {navItems.map(({ label, href }) => (
                             <li key={href}>
@@ -97,9 +119,13 @@ export function Navbar() {
                                     onClick={() => handleClick(href)}
                                     className={cn(
                                         'w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-colors',
-                                        activeSection === href.slice(1)
-                                            ? 'text-primary-600 bg-primary-50'
-                                            : 'text-surface-600 hover:bg-surface-50',
+                                        isDevelopMode
+                                            ? activeSection === href.slice(1)
+                                                ? 'bg-cyan-400/12 text-cyan-300'
+                                                : 'text-slate-300 hover:bg-white/5'
+                                            : activeSection === href.slice(1)
+                                              ? 'text-primary-600 bg-primary-50'
+                                              : 'text-surface-600 hover:bg-surface-50',
                                     )}
                                 >
                                     {label}
