@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Project;
+use App\Services\ImageOptimizer;
+use App\Traits\ClearsPortfolioCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class ProjectController extends Controller
 {
+    use ClearsPortfolioCache;
     public function index(Request $request)
     {
         $query = Project::query();
@@ -49,11 +52,12 @@ class ProjectController extends Controller
         ]);
 
         if ($request->hasFile('thumbnail')) {
-            $validated['thumbnail_url'] = $request->file('thumbnail')->store('projects', 'public');
+            $validated['thumbnail_url'] = ImageOptimizer::storeAsWebP($request->file('thumbnail'), 'projects', 1200, 800);
         }
 
         unset($validated['thumbnail']);
         Project::create($validated);
+        $this->clearPortfolioCache();
 
         return redirect()->route('admin.projects.index')->with('success', 'Project created successfully.');
     }
@@ -84,11 +88,12 @@ class ProjectController extends Controller
             if ($project->thumbnail_url) {
                 Storage::disk('public')->delete($project->thumbnail_url);
             }
-            $validated['thumbnail_url'] = $request->file('thumbnail')->store('projects', 'public');
+            $validated['thumbnail_url'] = ImageOptimizer::storeAsWebP($request->file('thumbnail'), 'projects', 1200, 800);
         }
 
         unset($validated['thumbnail']);
         $project->update($validated);
+        $this->clearPortfolioCache();
 
         return redirect()->route('admin.projects.index')->with('success', 'Project updated successfully.');
     }
@@ -100,6 +105,7 @@ class ProjectController extends Controller
         }
 
         $project->delete();
+        $this->clearPortfolioCache();
 
         return back()->with('success', 'Project deleted successfully.');
     }

@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'github' => [
+        'username' => env('GITHUB_USERNAME', 'RH203'),
+    ],
+
 ];

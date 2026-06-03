@@ -9,21 +9,29 @@ use App\Models\Hero;
 use App\Models\Project;
 use App\Models\Skill;
 use App\Models\SocialLink;
+use App\Services\GitHubService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 
 class PortfolioController extends Controller
 {
-    public function index()
+    public function index(GitHubService $github)
     {
-        return Inertia::render('portfolio/index', [
-            'hero' => Hero::first(),
-            'skills' => Skill::orderBy('category')->orderBy('sort_order')->get(),
-            'experiences' => Experience::orderBy('sort_order')->get(),
-            'education' => Education::orderBy('sort_order')->get(),
-            'projects' => Project::orderBy('sort_order')->get(),
-            'socialLinks' => SocialLink::where('is_active', true)->orderBy('sort_order')->get(),
-        ]);
+        $data = Cache::remember('portfolio_data', 3600, function () {
+            return [
+                'hero'        => Hero::first()?->toArray(),
+                'skills'      => Skill::orderBy('category')->orderBy('sort_order')->get()->toArray(),
+                'experiences' => Experience::orderBy('sort_order')->get()->toArray(),
+                'education'   => Education::orderBy('sort_order')->get()->toArray(),
+                'projects'    => Project::orderBy('sort_order')->get()->toArray(),
+                'socialLinks' => SocialLink::where('is_active', true)->orderBy('sort_order')->get()->toArray(),
+            ];
+        });
+
+        return Inertia::render('portfolio/index', array_merge($data, [
+            'github' => $github->getData(),
+        ]));
     }
 
     public function submitContact(Request $request)

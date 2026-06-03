@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Experience;
+use App\Traits\ClearsPortfolioCache;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class ExperienceController extends Controller
 {
+    use ClearsPortfolioCache;
     public function index(Request $request)
     {
         $query = Experience::query();
@@ -48,6 +50,7 @@ class ExperienceController extends Controller
         ]);
 
         Experience::create($validated);
+        $this->clearPortfolioCache();
 
         return redirect()->route('admin.experiences.index')->with('success', 'Experience created successfully.');
     }
@@ -75,6 +78,7 @@ class ExperienceController extends Controller
         ]);
 
         $experience->update($validated);
+        $this->clearPortfolioCache();
 
         return redirect()->route('admin.experiences.index')->with('success', 'Experience updated successfully.');
     }
@@ -82,6 +86,7 @@ class ExperienceController extends Controller
     public function destroy(Experience $experience)
     {
         $experience->delete();
+        $this->clearPortfolioCache();
 
         return back()->with('success', 'Experience deleted successfully.');
     }

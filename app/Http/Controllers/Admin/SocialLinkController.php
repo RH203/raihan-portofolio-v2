@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\SocialLink;
+use App\Traits\ClearsPortfolioCache;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class SocialLinkController extends Controller
 {
+    use ClearsPortfolioCache;
     public function index()
     {
         return Inertia::render('admin/social-links/index', [
@@ -31,6 +33,7 @@ class SocialLinkController extends Controller
         ]);
 
         SocialLink::create($validated);
+        $this->clearPortfolioCache();
 
         return redirect()->route('admin.social-links.index')->with('success', 'Social link created successfully.');
     }
@@ -52,6 +55,7 @@ class SocialLinkController extends Controller
         ]);
 
         $socialLink->update($validated);
+        $this->clearPortfolioCache();
 
         return redirect()->route('admin.social-links.index')->with('success', 'Social link updated successfully.');
     }
@@ -59,6 +63,7 @@ class SocialLinkController extends Controller
     public function destroy(SocialLink $socialLink)
     {
         $socialLink->delete();
+        $this->clearPortfolioCache();
 
         return back()->with('success', 'Social link deleted successfully.');
     }

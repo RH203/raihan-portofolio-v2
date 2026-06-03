@@ -98,6 +98,34 @@ export type DashboardStats = {
     projects: number;
     messages: number;
     unreadMessages: number;
+    totalViews: number;
+};
+
+export type GitHubRepo = {
+    name: string;
+    description: string | null;
+    url: string;
+    stars: number;
+    forks: number;
+    language: string | null;
+    updated_at: string;
+};
+
+export type GitHubData = {
+    username: string;
+    profile_url: string;
+    avatar_url: string | null;
+    public_repos: number;
+    followers: number;
+    total_stars: number;
+    languages: Record<string, number>;
+    top_repos: GitHubRepo[];
+};
+
+export type ChartPoint = {
+    date: string;
+    views?: number;
+    contact?: number;
 };
 
 export type SocialLink = {

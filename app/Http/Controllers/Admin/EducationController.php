@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Education;
+use App\Traits\ClearsPortfolioCache;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class EducationController extends Controller
 {
+    use ClearsPortfolioCache;
     public function index(Request $request)
     {
         $query = Education::query();
@@ -44,6 +46,7 @@ class EducationController extends Controller
         ]);
 
         Education::create($validated);
+        $this->clearPortfolioCache();
 
         return redirect()->route('admin.education.index')->with('success', 'Education entry created successfully.');
     }
@@ -67,6 +70,7 @@ class EducationController extends Controller
         ]);
 
         $education->update($validated);
+        $this->clearPortfolioCache();
 
         return redirect()->route('admin.education.index')->with('success', 'Education entry updated successfully.');
     }
@@ -74,6 +78,7 @@ class EducationController extends Controller
     public function destroy(Education $education)
     {
         $education->delete();
+        $this->clearPortfolioCache();
 
         return back()->with('success', 'Education entry deleted successfully.');
     }

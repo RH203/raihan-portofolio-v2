@@ -1,13 +1,13 @@
 import { ContactSection } from '@/components/portfolio/contact-section';
-import { EducationSection } from '@/components/portfolio/education-section';
-import { ExperienceSection } from '@/components/portfolio/experience-section';
+import { GitHubSection } from '@/components/portfolio/github-section';
 import { Footer } from '@/components/portfolio/footer';
 import { HeroSection } from '@/components/portfolio/hero-section';
 import { Navbar } from '@/components/portfolio/navbar';
 import { PortfolioSection } from '@/components/portfolio/portfolio-section';
 import { ServicesSection } from '@/components/portfolio/services-section';
 import { SkillsSection } from '@/components/portfolio/skills-section';
-import type { Education, Experience, Hero, Project, Skill, SocialLink } from '@/types';
+import { TimelineSection } from '@/components/portfolio/timeline-section';
+import type { Education, Experience, GitHubData, Hero, Project, Skill, SocialLink } from '@/types';
 import { Head } from '@inertiajs/react';
 
 interface Props {
@@ -17,6 +17,7 @@ interface Props {
     education: Education[];
     projects: Project[];
     socialLinks: SocialLink[];
+    github: GitHubData;
 }
 
 // ---------------------------------------------------------------------------
@@ -93,7 +94,7 @@ const jsonLd = JSON.stringify([
     },
 ]);
 
-export default function PortfolioIndex({ hero, skills, experiences, education, projects, socialLinks }: Props) {
+export default function PortfolioIndex({ hero, skills, experiences, education, projects, socialLinks, github }: Props) {
     const isDevelopMode = hero?.develop_mode ?? false;
 
     return (
@@ -148,10 +149,10 @@ export default function PortfolioIndex({ hero, skills, experiences, education, p
                     <main>
                         <HeroSection hero={hero} />
                         <SkillsSection skills={skills} isDevelopMode={false} />
-                        <ExperienceSection experiences={experiences} />
-                        <EducationSection education={education} />
+                        <TimelineSection experiences={experiences} education={education} />
                         <PortfolioSection projects={projects} isDevelopMode={false} />
                         <ServicesSection />
+                        <GitHubSection github={github} />
                         <ContactSection socialLinks={socialLinks} />
                     </main>
 
