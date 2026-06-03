@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Hero;
+use App\Services\ImageOptimizer;
+use App\Traits\ClearsPortfolioCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class HeroController extends Controller
 {
+    use ClearsPortfolioCache;
     public function edit()
     {
         return Inertia::render('admin/hero/edit', [
@@ -37,7 +40,7 @@ class HeroController extends Controller
             if ($hero->photo_url) {
                 Storage::disk('public')->delete($hero->photo_url);
             }
-            $validated['photo_url'] = $request->file('photo')->store('hero', 'public');
+            $validated['photo_url'] = ImageOptimizer::storeAsWebP($request->file('photo'), 'hero', 600, 600, 90);
         }
 
         if ($request->hasFile('cv')) {
@@ -57,6 +60,7 @@ class HeroController extends Controller
         $validated['develop_mode'] = $request->boolean('develop_mode');
         $hero->fill($validated);
         $hero->save();
+        $this->clearPortfolioCache();
 
         return back()->with('success', 'Hero section updated successfully.');
     }

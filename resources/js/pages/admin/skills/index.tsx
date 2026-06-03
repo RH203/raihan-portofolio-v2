@@ -16,7 +16,10 @@ interface Props {
 export default function SkillsIndex({ skills, categories, filters }: Props) {
     const [search, setSearch] = useState(filters.search || '');
     const [deleting, setDeleting] = useState<number | null>(null);
+    const [selected, setSelected] = useState<number[]>([]);
+    const [bulkDeleting, setBulkDeleting] = useState(false);
     const dialog = useConfirmDialog();
+    const bulkDialog = useConfirmDialog();
 
     const handleSearch = (value: string) => {
         setSearch(value);
@@ -35,13 +38,29 @@ export default function SkillsIndex({ skills, categories, filters }: Props) {
         }
     };
 
-    // Group skills by category
-    const grouped = new Map<string, Skill[]>();
-    skills.forEach((skill) => {
-        const group = grouped.get(skill.category) || [];
-        group.push(skill);
-        grouped.set(skill.category, group);
-    });
+    const toggleSelect = (id: number) => {
+        setSelected((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
+    };
+
+    const toggleSelectAll = () => {
+        setSelected((prev) => prev.length === skills.length ? [] : skills.map((s) => s.id));
+    };
+
+    const handleBulkDelete = async () => {
+        if (selected.length === 0) return;
+        const confirmed = await bulkDialog.confirm();
+        if (confirmed) {
+            setBulkDeleting(true);
+            router.delete('/admin/skills', {
+                data: { ids: selected },
+                onSuccess: () => setSelected([]),
+                onFinish: () => setBulkDeleting(false),
+            });
+        }
+    };
+
+    const allSelected = skills.length > 0 && selected.length === skills.length;
+    const someSelected = selected.length > 0 && selected.length < skills.length;
 
     return (
         <AdminLayout
@@ -77,6 +96,17 @@ export default function SkillsIndex({ skills, categories, filters }: Props) {
                         <option key={cat} value={cat}>{cat}</option>
                     ))}
                 </select>
+
+                {selected.length > 0 && (
+                    <button
+                        onClick={handleBulkDelete}
+                        disabled={bulkDeleting}
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-danger-600 text-white text-sm font-medium hover:bg-danger-700 transition-colors disabled:opacity-50"
+                    >
+                        <Trash2 className="h-4 w-4" />
+                        Delete Selected ({selected.length})
+                    </button>
+                )}
             </div>
 
             {skills.length === 0 ? (
@@ -94,6 +124,16 @@ export default function SkillsIndex({ skills, categories, filters }: Props) {
                     <table className="w-full text-sm">
                         <thead className="bg-surface-50 border-b border-surface-100">
                             <tr>
+                                <th className="px-6 py-3 w-10">
+                                    <input
+                                        type="checkbox"
+                                        checked={allSelected}
+                                        ref={(el) => { if (el) el.indeterminate = someSelected; }}
+                                        onChange={toggleSelectAll}
+                                        className="rounded border-surface-300 text-primary-600 focus:ring-primary-500 cursor-pointer"
+                                        aria-label="Select all skills"
+                                    />
+                                </th>
                                 <th className="text-left px-6 py-3 font-medium text-surface-600">Skill</th>
                                 <th className="text-left px-6 py-3 font-medium text-surface-600">Category</th>
                                 <th className="text-left px-6 py-3 font-medium text-surface-600">Icon</th>
@@ -103,7 +143,16 @@ export default function SkillsIndex({ skills, categories, filters }: Props) {
                         </thead>
                         <tbody className="divide-y divide-surface-100">
                             {skills.map((skill) => (
-                                <tr key={skill.id} className="hover:bg-surface-50 transition-colors">
+                                <tr key={skill.id} className={`hover:bg-surface-50 transition-colors ${selected.includes(skill.id) ? 'bg-primary-50' : ''}`}>
+                                    <td className="px-6 py-3">
+                                        <input
+                                            type="checkbox"
+                                            checked={selected.includes(skill.id)}
+                                            onChange={() => toggleSelect(skill.id)}
+                                            className="rounded border-surface-300 text-primary-600 focus:ring-primary-500 cursor-pointer"
+                                            aria-label={`Select ${skill.name}`}
+                                        />
+                                    </td>
                                     <td className="px-6 py-3 font-medium text-surface-900">{skill.name}</td>
                                     <td className="px-6 py-3">
                                         <span className="px-2 py-0.5 rounded-full bg-primary-50 text-primary-700 text-xs font-medium">{skill.category}</span>
@@ -138,6 +187,14 @@ export default function SkillsIndex({ skills, categories, filters }: Props) {
                 message="Are you sure you want to delete this skill? This action cannot be undone."
                 onConfirm={dialog.handleConfirm}
                 onCancel={dialog.handleCancel}
+            />
+
+            <ConfirmDialog
+                open={bulkDialog.isOpen}
+                title="Delete Selected Skills"
+                message={`Are you sure you want to delete ${selected.length} skill(s)? This action cannot be undone.`}
+                onConfirm={bulkDialog.handleConfirm}
+                onCancel={bulkDialog.handleCancel}
             />
         </AdminLayout>
     );

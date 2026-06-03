@@ -10,10 +10,11 @@ use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\SkillController;
 use App\Http\Controllers\Admin\SocialLinkController;
 use App\Http\Controllers\PortfolioController;
+use App\Http\Middleware\TrackPageView;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
-Route::get('/', [PortfolioController::class, 'index'])->name('home');
+Route::get('/', [PortfolioController::class, 'index'])->middleware(TrackPageView::class)->name('home');
 Route::post('/contact', [PortfolioController::class, 'submitContact'])->name('contact.submit');
 
 // Auth routes
@@ -34,6 +35,7 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
 
     // Skills
     Route::resource('skills', SkillController::class)->except(['show']);
+    Route::delete('/skills', [SkillController::class, 'destroyBulk'])->name('skills.destroy-bulk');
 
     // Experiences
     Route::resource('experiences', ExperienceController::class)->except(['show']);

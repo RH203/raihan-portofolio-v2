@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Skill;
+use App\Traits\ClearsPortfolioCache;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class SkillController extends Controller
 {
+    use ClearsPortfolioCache;
     public function index(Request $request)
     {
         $query = Skill::query();
@@ -45,6 +47,7 @@ class SkillController extends Controller
         ]);
 
         Skill::create($validated);
+        $this->clearPortfolioCache();
 
         return redirect()->route('admin.skills.index')->with('success', 'Skill created successfully.');
     }
@@ -67,6 +70,7 @@ class SkillController extends Controller
         ]);
 
         $skill->update($validated);
+        $this->clearPortfolioCache();
 
         return redirect()->route('admin.skills.index')->with('success', 'Skill updated successfully.');
     }
@@ -74,7 +78,17 @@ class SkillController extends Controller
     public function destroy(Skill $skill)
     {
         $skill->delete();
+        $this->clearPortfolioCache();
 
         return back()->with('success', 'Skill deleted successfully.');
+    }
+
+    public function destroyBulk(Request $request)
+    {
+        $request->validate(['ids' => 'required|array', 'ids.*' => 'integer|exists:skills,id']);
+        Skill::whereIn('id', $request->ids)->delete();
+        $this->clearPortfolioCache();
+
+        return back()->with('success', count($request->ids) . ' skill(s) deleted successfully.');
     }
 }

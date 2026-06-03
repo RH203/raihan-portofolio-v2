@@ -1,8 +1,9 @@
+import { ImageCropper } from '@/components/ui/image-cropper';
 import AdminLayout from '@/layouts/admin-layout';
 import type { Hero } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { FileText, Save, Trash2 } from 'lucide-react';
-import { type FormEvent } from 'react';
+import { type FormEvent, useState } from 'react';
 
 interface Props {
     hero: Hero | null;
@@ -22,6 +23,9 @@ export default function HeroEdit({ hero }: Props) {
         remove_cv: false,
     });
 
+    const [cropSrc, setCropSrc] = useState<string | null>(null);
+    const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
         post('/admin/hero', { forceFormData: true });
@@ -29,6 +33,21 @@ export default function HeroEdit({ hero }: Props) {
 
     const handleRemoveCv = () => {
         setData('remove_cv', true);
+    };
+
+    const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => setCropSrc(reader.result as string);
+        reader.readAsDataURL(file);
+        e.target.value = '';
+    };
+
+    const handleCropDone = (file: File) => {
+        setData('photo', file);
+        setPhotoPreview(URL.createObjectURL(file));
+        setCropSrc(null);
     };
 
     return (
@@ -111,13 +130,21 @@ export default function HeroEdit({ hero }: Props) {
 
                     <div className="space-y-1.5">
                         <label htmlFor="photo" className="block text-sm font-medium text-surface-700">Photo</label>
-                        {hero?.photo_url && (
+                        {(photoPreview || hero?.photo_url) && (
                             <div className="mb-2">
-                                <img src={`/storage/${hero.photo_url}`} alt="Current" className="h-20 w-20 rounded-full object-cover border border-surface-200" />
+                                <img
+                                    src={photoPreview ?? `/storage/${hero!.photo_url}`}
+                                    alt="Current"
+                                    className="h-20 w-20 rounded-full object-cover border border-surface-200"
+                                />
+                                {photoPreview && (
+                                    <p className="mt-1 text-xs text-primary-600 font-medium">Preview (not saved yet)</p>
+                                )}
                             </div>
                         )}
-                        <input id="photo" type="file" accept="image/*" onChange={(e) => setData('photo', e.target.files?.[0] || null)}
+                        <input id="photo" type="file" accept="image/*" onChange={handlePhotoSelect}
                             className="block w-full text-sm text-surface-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100" />
+                        <p className="text-xs text-surface-400">Photo will be cropped to a circle (1:1 ratio). Max 2MB.</p>
                         {errors.photo && <p className="text-xs text-danger-500">{errors.photo}</p>}
                     </div>
                 </div>
@@ -129,7 +156,7 @@ export default function HeroEdit({ hero }: Props) {
 
                     {hero?.cv_url && !data.remove_cv && (
                         <div className="flex items-center gap-3 rounded-lg bg-primary-50 border border-primary-100 px-4 py-3">
-                            <FileText className="h-5 w-5 text-primary-600 flex-shrink-0" />
+                            <FileText className="h-5 w-5 text-primary-600 shrink-0" />
                             <div className="flex-1 min-w-0">
                                 <p className="text-sm font-medium text-primary-700">Current CV</p>
                                 <a
@@ -190,6 +217,15 @@ export default function HeroEdit({ hero }: Props) {
                     {processing ? 'Saving...' : 'Save Changes'}
                 </button>
             </form>
+
+            {cropSrc && (
+                <ImageCropper
+                    imageSrc={cropSrc}
+                    aspect={1}
+                    onCropDone={handleCropDone}
+                    onCancel={() => setCropSrc(null)}
+                />
+            )}
         </AdminLayout>
     );
 }
