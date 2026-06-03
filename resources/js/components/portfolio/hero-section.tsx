@@ -143,7 +143,7 @@ export function HeroSection({ hero }: HeroSectionProps) {
                                     />
                                 ) : (
                                     <span className="text-7xl sm:text-8xl font-bold text-primary-400/60">
-                                        {hero.name.charAt(0)}
+                                        {hero.name?.charAt(0) ?? '?'}
                                     </span>
                                 )}
                             </div>
