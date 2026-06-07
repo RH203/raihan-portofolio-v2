@@ -4,12 +4,14 @@ import { Head, Link } from '@inertiajs/react';
 import {
     BookOpen,
     Briefcase,
+    Eye,
     FolderKanban,
     GitFork,
     GraduationCap,
     Mail,
     MessageSquare,
     Star,
+    Users,
 } from 'lucide-react';
 import { useState } from 'react';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
