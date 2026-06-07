@@ -22,57 +22,49 @@ export function SkillsSection({ skills, isDevelopMode = false }: SkillsSectionPr
     if (skills.length === 0) return null;
 
     return (
-        <section
-            id="skills"
-            className={cn('py-20', isDevelopMode ? 'bg-slate-950/70' : 'bg-surface-50/50')}
-            aria-labelledby="skills-heading"
-        >
-            <div className="mx-auto max-w-6xl px-6">
-                <div className="text-center mb-14">
-                    <p className={cn('font-medium text-sm tracking-wide uppercase mb-2', isDevelopMode ? 'text-cyan-300' : 'text-primary-600')}>
-                        {isDevelopMode ? 'Current Stack' : 'What I Work With'}
-                    </p>
-                    <h2 id="skills-heading" className={cn('text-3xl sm:text-4xl font-bold', isDevelopMode ? 'text-white' : 'text-surface-900')}>
-                        Skills & Technologies
-                    </h2>
-                    <p className={cn('mt-3 max-w-xl mx-auto', isDevelopMode ? 'text-slate-400' : 'text-surface-500')}>
-                        {isDevelopMode ? 'Tools that keep the workflow fast, tidy, and fun to ship.' : 'Technologies and tools I use to bring ideas to life'}
-                    </p>
+        <section id="skills" className={cn('py-24', isDevelopMode ? 'bg-slate-950/70' : 'bg-white')} aria-labelledby="skills-heading">
+            <div className="mx-auto max-w-5xl px-6">
+                <div className={cn('mb-12 flex items-end gap-4 border-b pb-6', isDevelopMode ? 'border-white/10' : 'border-surface-200')}>
+                    <span className={cn('font-mono text-sm', isDevelopMode ? 'text-cyan-400' : 'text-primary-600')}>01</span>
+                    <div>
+                        <h2 id="skills-heading" className={cn('text-3xl font-bold tracking-tight sm:text-4xl', isDevelopMode ? 'text-white' : 'text-surface-900')}>
+                            Skills &amp; Technologies
+                        </h2>
+                        <p className={cn('mt-1.5 text-sm', isDevelopMode ? 'text-slate-400' : 'text-surface-500')}>
+                            {isDevelopMode ? 'Tools that keep the workflow fast, tidy, and fun to ship.' : 'Technologies and tools I use to bring ideas to life'}
+                        </p>
+                    </div>
                 </div>
 
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <dl className="space-y-0">
                     {Array.from(grouped.entries()).map(([category, items]) => (
                         <div
                             key={category}
                             className={cn(
-                                'rounded-xl p-6 transition-shadow duration-300',
-                                isDevelopMode
-                                    ? 'border border-white/10 bg-white/5 shadow-sm shadow-cyan-950/10 hover:shadow-md hover:shadow-cyan-900/20'
-                                    : 'border border-surface-100 bg-white shadow-sm hover:shadow-md',
+                                'grid gap-x-8 gap-y-3 border-b py-6 sm:grid-cols-[180px_1fr] sm:items-baseline',
+                                isDevelopMode ? 'border-white/10' : 'border-surface-100',
                             )}
                         >
-                            <h3 className={cn('text-sm font-semibold uppercase tracking-wider mb-4', isDevelopMode ? 'text-cyan-300' : 'text-primary-600')}>
+                            <dt className={cn('text-sm font-semibold tracking-wide uppercase', isDevelopMode ? 'text-cyan-300' : 'text-surface-900')}>
                                 {category}
-                            </h3>
-                            <div className="flex flex-wrap gap-2">
+                            </dt>
+                            <dd className="flex flex-wrap gap-x-5 gap-y-2.5">
                                 {items.map((skill) => (
                                     <span
                                         key={skill.id}
                                         className={cn(
-                                            'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors duration-200',
-                                            isDevelopMode
-                                                ? 'bg-slate-900/80 text-slate-200 hover:bg-cyan-400/12 hover:text-cyan-200'
-                                                : 'bg-surface-50 text-surface-700 hover:bg-primary-50 hover:text-primary-700',
+                                            'inline-flex items-center gap-2 text-sm font-medium transition-colors duration-200',
+                                            isDevelopMode ? 'text-slate-300 hover:text-cyan-300' : 'text-surface-600 hover:text-primary-600',
                                         )}
                                     >
-                                        <DynamicIcon name={skill.icon} className="h-3.5 w-3.5 flex-shrink-0" aria-hidden="true" />
+                                        <DynamicIcon name={skill.icon} className="h-4 w-4 shrink-0 opacity-70" aria-hidden="true" />
                                         {skill.name}
                                     </span>
                                 ))}
-                            </div>
+                            </dd>
                         </div>
                     ))}
-                </div>
+                </dl>
             </div>
         </section>
     );

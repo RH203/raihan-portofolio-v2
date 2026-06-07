@@ -6,8 +6,7 @@ import { useEffect, useState } from 'react';
 const navItems = [
     { label: 'Home', href: '#home' },
     { label: 'Skills', href: '#skills' },
-    { label: 'Experience', href: '#experience' },
-    { label: 'Education', href: '#education' },
+    { label: 'Timeline', href: '#timeline' },
     { label: 'Projects', href: '#projects' },
     { label: 'Services', href: '#services' },
     { label: 'Contact', href: '#contact' },
@@ -64,25 +63,28 @@ export function Navbar({ isDevelopMode = false }: NavbarProps) {
             role="banner"
         >
             <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4" aria-label="Main navigation">
-                <Link href="/" className={cn('text-xl font-bold tracking-tight', isDevelopMode ? 'text-white' : 'text-surface-900')}>
-                    Raihan Firdaus<span className={isDevelopMode ? 'text-cyan-400' : 'text-primary-600'}>.</span>
+                <Link href="/" className={cn('font-mono text-lg font-bold tracking-tight', isDevelopMode ? 'text-white' : 'text-surface-900')}>
+                    <span className={isDevelopMode ? 'text-cyan-400' : 'text-primary-600'}>RF</span>
+                    <span className={isDevelopMode ? 'text-slate-500' : 'text-surface-300'}>/</span>
+                    portfolio
                 </Link>
 
                 {/* Desktop nav */}
-                <ul className="hidden md:flex items-center gap-1" role="list">
-                    {navItems.map(({ label, href }) => (
-                        <li key={href}>
+                <ul className="hidden md:flex items-center gap-0.5" role="list">
+                    {navItems.map(({ label, href }, idx) => (
+                        <li key={href} className="flex items-center">
+                            {idx > 0 && <span className={cn('mx-1 text-xs', isDevelopMode ? 'text-white/10' : 'text-surface-200')}>/</span>}
                             <button
                                 onClick={() => handleClick(href)}
                                 className={cn(
-                                    'px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200',
+                                    'border-b-2 px-1.5 py-2 text-sm font-medium transition-colors duration-200',
                                     isDevelopMode
                                         ? activeSection === href.slice(1)
-                                            ? 'bg-cyan-400/12 text-cyan-300'
-                                            : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                                            ? 'border-cyan-400 text-cyan-300'
+                                            : 'border-transparent text-slate-400 hover:text-white'
                                         : activeSection === href.slice(1)
-                                          ? 'text-primary-600 bg-primary-50'
-                                          : 'text-surface-600 hover:text-surface-900 hover:bg-surface-50',
+                                          ? 'border-primary-600 text-surface-900'
+                                          : 'border-transparent text-surface-500 hover:text-surface-900',
                                 )}
                             >
                                 {label}
@@ -119,14 +121,14 @@ export function Navbar({ isDevelopMode = false }: NavbarProps) {
                                 <button
                                     onClick={() => handleClick(href)}
                                     className={cn(
-                                        'w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-colors',
+                                        'w-full border-l-2 px-4 py-2.5 text-left text-sm font-medium transition-colors',
                                         isDevelopMode
                                             ? activeSection === href.slice(1)
-                                                ? 'bg-cyan-400/12 text-cyan-300'
-                                                : 'text-slate-300 hover:bg-white/5'
+                                                ? 'border-cyan-400 bg-white/5 text-cyan-300'
+                                                : 'border-transparent text-slate-400 hover:bg-white/5 hover:text-white'
                                             : activeSection === href.slice(1)
-                                              ? 'text-primary-600 bg-primary-50'
-                                              : 'text-surface-600 hover:bg-surface-50',
+                                              ? 'border-primary-600 bg-primary-50/60 text-primary-700'
+                                              : 'border-transparent text-surface-500 hover:bg-surface-50 hover:text-surface-900',
                                     )}
                                 >
                                     {label}

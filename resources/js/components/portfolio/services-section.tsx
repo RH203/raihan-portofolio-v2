@@ -65,111 +65,66 @@ interface ServicesSectionProps {
 
 export function ServicesSection({ isDevelopMode = false }: ServicesSectionProps) {
     return (
-        <section
-            id="services"
-            className={cn('py-20', isDevelopMode ? 'bg-slate-950/80' : 'bg-white')}
-            aria-labelledby="services-heading"
-        >
+        <section id="services" className={cn('py-24', isDevelopMode ? 'bg-slate-950/80' : 'bg-surface-50/60')} aria-labelledby="services-heading">
             <div className="mx-auto max-w-6xl px-6">
                 {/* Section header */}
-                <div className="text-center mb-14">
-                    <p
-                        className={cn(
-                            'font-medium text-sm tracking-wide uppercase mb-2',
-                            isDevelopMode ? 'text-cyan-300' : 'text-primary-600',
-                        )}
-                    >
-                        Available for Freelance Work
-                    </p>
-                    <h2
-                        id="services-heading"
-                        className={cn('text-3xl sm:text-4xl font-bold', isDevelopMode ? 'text-white' : 'text-surface-900')}
-                    >
-                        Services
-                    </h2>
-                    <p className={cn('mt-3 max-w-2xl mx-auto leading-relaxed', isDevelopMode ? 'text-slate-400' : 'text-surface-500')}>
-                        I offer freelance software engineering services covering web development, back-end systems,
-                        mobile apps, and API development. Whether you need a complete Laravel application, a robust
-                        REST API, or a Flutter mobile app, I can help bring your project to life.
+                <div className="mb-12 grid gap-6 lg:grid-cols-[auto_1fr] lg:items-end">
+                    <div className={cn('flex items-end gap-4 border-b pb-6 lg:border-0 lg:pb-0', isDevelopMode ? 'border-white/10' : 'border-surface-200')}>
+                        <span className={cn('font-mono text-sm', isDevelopMode ? 'text-cyan-400' : 'text-primary-600')}>04</span>
+                        <h2 id="services-heading" className={cn('text-3xl font-bold tracking-tight sm:text-4xl', isDevelopMode ? 'text-white' : 'text-surface-900')}>
+                            Services
+                        </h2>
+                    </div>
+                    <p className={cn('border-b pb-6 text-sm leading-relaxed lg:max-w-xl lg:border-0 lg:pb-0', isDevelopMode ? 'border-white/10 text-slate-400' : 'border-surface-200 text-surface-500')}>
+                        Freelance software engineering across web, back-end, and mobile — Laravel applications, REST
+                        APIs, full-stack dashboards, and Flutter apps, end to end.
                     </p>
                 </div>
 
-                {/* Service cards */}
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {services.map((service) => {
+                {/* Service grid — bordered cells like a spec sheet, not repeated icon cards */}
+                <div className={cn('grid border-t border-l sm:grid-cols-2', isDevelopMode ? 'border-white/10' : 'border-surface-200')}>
+                    {services.map((service, index) => {
                         const Icon = service.icon;
                         return (
                             <div
                                 key={service.title}
                                 className={cn(
-                                    'rounded-xl p-6 transition-all duration-300 hover:-translate-y-1',
-                                    isDevelopMode
-                                        ? 'border border-white/10 bg-white/5 shadow-sm shadow-cyan-950/10 hover:shadow-md hover:shadow-cyan-900/20'
-                                        : 'border border-surface-100 bg-white shadow-sm hover:shadow-md',
+                                    'border-r border-b p-7 transition-colors duration-200',
+                                    isDevelopMode ? 'border-white/10 hover:bg-white/3' : 'border-surface-200 hover:bg-white',
                                 )}
                             >
-                                {/* Icon */}
-                                <div
-                                    className={cn(
-                                        'flex h-11 w-11 items-center justify-center rounded-xl mb-4',
-                                        isDevelopMode ? 'bg-cyan-400/10 text-cyan-300' : 'bg-primary-50 text-primary-600',
-                                    )}
-                                >
-                                    <Icon className="h-5 w-5" aria-hidden="true" />
+                                <div className="mb-5 flex items-center justify-between">
+                                    <span className={cn('font-mono text-xs', isDevelopMode ? 'text-slate-500' : 'text-surface-400')}>0{index + 1}</span>
+                                    <Icon className={cn('h-5 w-5', isDevelopMode ? 'text-cyan-300' : 'text-primary-600')} aria-hidden="true" />
                                 </div>
 
-                                {/* Title */}
-                                <h3
-                                    className={cn(
-                                        'font-semibold mb-2 leading-snug',
-                                        isDevelopMode ? 'text-white' : 'text-surface-900',
-                                    )}
-                                >
-                                    {service.title}
-                                </h3>
+                                <h3 className={cn('mb-2 leading-snug font-semibold', isDevelopMode ? 'text-white' : 'text-surface-900')}>{service.title}</h3>
 
-                                {/* Description */}
-                                <p className={cn('text-sm leading-relaxed mb-4', isDevelopMode ? 'text-slate-400' : 'text-surface-500')}>
-                                    {service.description}
+                                <p className={cn('mb-4 text-sm leading-relaxed', isDevelopMode ? 'text-slate-400' : 'text-surface-500')}>{service.description}</p>
+
+                                <p className={cn('font-mono text-xs tracking-wide', isDevelopMode ? 'text-slate-500' : 'text-surface-400')}>
+                                    {service.tags.join('  ·  ')}
                                 </p>
-
-                                {/* Tags */}
-                                <div className="flex flex-wrap gap-1.5">
-                                    {service.tags.map((tag) => (
-                                        <span
-                                            key={tag}
-                                            className={cn(
-                                                'px-2 py-0.5 rounded-md text-xs font-medium',
-                                                isDevelopMode ? 'bg-slate-900 text-slate-300' : 'bg-surface-50 text-surface-600',
-                                            )}
-                                        >
-                                            {tag}
-                                        </span>
-                                    ))}
-                                </div>
                             </div>
                         );
                     })}
                 </div>
 
-                {/* CTA banner */}
+                {/* CTA */}
                 <div
                     className={cn(
-                        'mt-14 rounded-2xl p-8 text-center',
-                        isDevelopMode
-                            ? 'border border-cyan-400/20 bg-cyan-400/5'
-                            : 'border border-primary-100 bg-primary-50',
+                        'mt-12 flex flex-col items-start gap-6 border-l-2 py-1 pl-6 sm:flex-row sm:items-center sm:justify-between',
+                        isDevelopMode ? 'border-cyan-400/40' : 'border-primary-600',
                     )}
                 >
-                    <h3
-                        className={cn('text-xl font-semibold mb-2', isDevelopMode ? 'text-white' : 'text-surface-900')}
-                    >
-                        Looking for a freelance developer?
-                    </h3>
-                    <p className={cn('text-sm mb-6 max-w-xl mx-auto', isDevelopMode ? 'text-slate-400' : 'text-surface-500')}>
-                        Available for freelance Laravel, back-end, full-stack, and Flutter mobile development projects.
-                        Let's discuss your requirements and build something great together.
-                    </p>
+                    <div>
+                        <h3 className={cn('text-lg font-semibold', isDevelopMode ? 'text-white' : 'text-surface-900')}>
+                            Looking for a freelance developer?
+                        </h3>
+                        <p className={cn('mt-1 max-w-xl text-sm', isDevelopMode ? 'text-slate-400' : 'text-surface-500')}>
+                            Available for Laravel, back-end, full-stack, and Flutter mobile projects — let's build something great together.
+                        </p>
+                    </div>
                     <a
                         href="#contact"
                         onClick={(e) => {
@@ -177,10 +132,8 @@ export function ServicesSection({ isDevelopMode = false }: ServicesSectionProps)
                             document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' });
                         }}
                         className={cn(
-                            'inline-flex items-center gap-2 px-6 py-3 rounded-lg font-medium text-sm transition-all duration-200 shadow-sm',
-                            isDevelopMode
-                                ? 'bg-cyan-400 text-slate-950 hover:bg-cyan-300 shadow-cyan-400/20'
-                                : 'bg-primary-600 text-white hover:bg-primary-700 shadow-primary-600/20 hover:shadow-md hover:shadow-primary-600/30',
+                            'inline-flex shrink-0 items-center gap-2 rounded-full px-6 py-3 text-sm font-medium transition-colors duration-200',
+                            isDevelopMode ? 'bg-cyan-400 text-slate-950 hover:bg-cyan-300' : 'bg-surface-900 text-white hover:bg-primary-600',
                         )}
                     >
                         Contact Raihan Firdaus

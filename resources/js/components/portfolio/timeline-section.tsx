@@ -37,147 +37,72 @@ export function TimelineSection({ experiences, education }: Props) {
     ].sort((a, b) => b.sortYear - a.sortYear);
 
     return (
-        <section id="timeline" className="py-20" aria-labelledby="timeline-heading">
-            <div className="mx-auto max-w-5xl px-6">
-                <div className="text-center mb-14">
-                    <p className="text-primary-600 font-medium text-sm tracking-wide uppercase mb-2">My Journey</p>
-                    <h2 id="timeline-heading" className="text-3xl sm:text-4xl font-bold text-surface-900">
-                        Experience &amp; Education
-                    </h2>
-                    <p className="mt-3 text-surface-500 max-w-xl mx-auto">
-                        A timeline of my professional career and academic background
-                    </p>
-                </div>
-
-                {/* Legend */}
-                <div className="flex items-center justify-center gap-6 mb-10">
-                    <span className="flex items-center gap-1.5 text-sm text-surface-500">
-                        <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary-100">
-                            <Briefcase className="h-3.5 w-3.5 text-primary-600" />
-                        </span>
-                        Work
-                    </span>
-                    <span className="flex items-center gap-1.5 text-sm text-surface-500">
-                        <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100">
-                            <GraduationCap className="h-3.5 w-3.5 text-emerald-600" />
-                        </span>
-                        Education
-                    </span>
-                </div>
-
-                <div className="relative">
-                    {/* Center vertical line */}
-                    <div className="absolute left-1/2 top-0 bottom-0 w-px -translate-x-1/2 bg-surface-200 hidden md:block" aria-hidden="true" />
-
-                    <div className="space-y-8">
-                        {items.map((item, idx) => {
-                            const isLeft = idx % 2 === 0;
-                            const isWork = item.kind === 'work';
-
-                            const iconBg  = isWork ? 'bg-primary-100' : 'bg-emerald-100';
-                            const iconFg  = isWork ? 'text-primary-600' : 'text-emerald-600';
-                            const dotBg   = isWork ? 'border-primary-300 bg-primary-50' : 'border-emerald-300 bg-emerald-50';
-                            const dotFill = isWork ? 'bg-primary-500' : 'bg-emerald-500';
-
-                            return (
-                                <div key={`${item.kind}-${item.data.id}`} className="relative">
-                                    {/* Desktop: alternating layout */}
-                                    <div className={`hidden md:flex items-start gap-8 ${isLeft ? 'flex-row' : 'flex-row-reverse'}`}>
-                                        {/* Card */}
-                                        <div className="flex-1">
-                                            <div className={`bg-white rounded-xl border border-surface-100 p-5 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 ${isLeft ? 'ml-auto' : 'mr-auto'}`}>
-                                                <TimelineCard item={item} iconBg={iconBg} iconFg={iconFg} />
-                                            </div>
-                                        </div>
-
-                                        {/* Center dot */}
-                                        <div className="shrink-0 flex flex-col items-center" style={{ width: 20 }}>
-                                            <div className={`h-5 w-5 rounded-full border-2 ${dotBg} flex items-center justify-center`}>
-                                                <div className={`h-2 w-2 rounded-full ${dotFill}`} />
-                                            </div>
-                                        </div>
-
-                                        {/* Spacer */}
-                                        <div className="flex-1" />
-                                    </div>
-
-                                    {/* Mobile: single column with left line */}
-                                    <div className="md:hidden flex items-start gap-4 pl-10 relative">
-                                        <div className="absolute left-3.5 top-2.5 -translate-x-1/2">
-                                            <div className={`h-4 w-4 rounded-full border-2 ${dotBg} flex items-center justify-center`}>
-                                                <div className={`h-1.5 w-1.5 rounded-full ${dotFill}`} />
-                                            </div>
-                                        </div>
-                                        <div className="absolute left-3.5 top-0 bottom-0 w-px bg-surface-200 -translate-x-1/2" aria-hidden="true" />
-                                        <div className="flex-1 bg-white rounded-xl border border-surface-100 p-4 shadow-sm">
-                                            <TimelineCard item={item} iconBg={iconBg} iconFg={iconFg} />
-                                        </div>
-                                    </div>
-                                </div>
-                            );
-                        })}
+        <section id="timeline" className="py-24" aria-labelledby="timeline-heading">
+            <div className="mx-auto max-w-4xl px-6">
+                <div className="mb-12 flex items-end gap-4 border-b border-surface-200 pb-6">
+                    <span className="font-mono text-sm text-primary-600">02</span>
+                    <div>
+                        <h2 id="timeline-heading" className="text-3xl font-bold tracking-tight text-surface-900 sm:text-4xl">
+                            Experience &amp; Education
+                        </h2>
+                        <p className="mt-1.5 text-sm text-surface-500">A timeline of my professional career and academic background</p>
                     </div>
+                </div>
+
+                <div>
+                    {items.map((item) => {
+                        const isWork = item.kind === 'work';
+                        const accent = isWork ? 'text-primary-600' : 'text-emerald-600';
+                        const Icon = isWork ? Briefcase : GraduationCap;
+
+                        const dateLabel = isWork
+                            ? `${expDate(item.data)} — ${expEndDate(item.data)}`
+                            : `${item.data.start_year} — ${item.data.end_year ?? 'Present'}`;
+
+                        const title = isWork ? item.data.title : item.data.institution;
+                        const org = isWork ? item.data.organization : item.data.program;
+                        const description = item.data.description;
+
+                        return (
+                            <article
+                                key={`${item.kind}-${item.data.id}`}
+                                className="grid gap-x-6 gap-y-2 border-b border-surface-100 py-7 sm:grid-cols-[150px_1fr] sm:gap-y-0"
+                            >
+                                <div className="font-mono text-xs tracking-wide text-surface-400 sm:pt-1">{dateLabel}</div>
+
+                                <div>
+                                    <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                                        <h3 className="flex items-center gap-2 font-semibold text-surface-900">
+                                            <Icon className={`h-4 w-4 shrink-0 ${accent}`} aria-hidden="true" />
+                                            {title}
+                                        </h3>
+                                        <span className={`text-sm font-medium ${accent}`}>{org}</span>
+                                    </div>
+
+                                    {isWork && item.data.location && (
+                                        <span className="mt-1 flex items-center gap-1 text-xs text-surface-400">
+                                            <MapPin className="h-3 w-3" /> {item.data.location}
+                                        </span>
+                                    )}
+
+                                    {description && <p className="mt-2.5 max-w-2xl text-sm leading-relaxed text-surface-500">{description}</p>}
+
+                                    {isWork && item.data.achievements && item.data.achievements.length > 0 && (
+                                        <ul className="mt-2.5 space-y-1.5">
+                                            {item.data.achievements.map((a, i) => (
+                                                <li key={i} className="flex items-start gap-2 text-sm text-surface-600">
+                                                    <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-surface-300" />
+                                                    {a}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </div>
+                            </article>
+                        );
+                    })}
                 </div>
             </div>
         </section>
-    );
-}
-
-function TimelineCard({ item, iconBg, iconFg }: { item: TimelineItem; iconBg: string; iconFg: string }) {
-    if (item.kind === 'work') {
-        const exp = item.data;
-        return (
-            <div>
-                <div className="flex items-start gap-3 mb-3">
-                    <div className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${iconBg} ${iconFg}`}>
-                        <Briefcase className="h-4 w-4" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                        <h3 className="text-sm font-semibold text-surface-900">{exp.title}</h3>
-                        <p className={`text-xs font-medium mt-0.5 ${iconFg}`}>{exp.organization}</p>
-                    </div>
-                </div>
-                <div className="flex flex-wrap items-center gap-2 mb-3">
-                    <span className="text-xs font-medium text-surface-500 bg-surface-50 px-2 py-0.5 rounded-full">
-                        {expDate(exp)} — {expEndDate(exp)}
-                    </span>
-                    {exp.location && (
-                        <span className="flex items-center gap-0.5 text-xs text-surface-400">
-                            <MapPin className="h-3 w-3" /> {exp.location}
-                        </span>
-                    )}
-                </div>
-                {exp.description && <p className="text-xs text-surface-500 leading-relaxed mb-2">{exp.description}</p>}
-                {exp.achievements && exp.achievements.length > 0 && (
-                    <ul className="space-y-1">
-                        {exp.achievements.map((a, i) => (
-                            <li key={i} className="flex items-start gap-1.5 text-xs text-surface-600">
-                                <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-primary-400" />
-                                {a}
-                            </li>
-                        ))}
-                    </ul>
-                )}
-            </div>
-        );
-    }
-
-    const edu = item.data;
-    return (
-        <div>
-            <div className="flex items-start gap-3 mb-2">
-                <div className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${iconBg} ${iconFg}`}>
-                    <GraduationCap className="h-4 w-4" />
-                </div>
-                <div className="min-w-0 flex-1">
-                    <h3 className="text-sm font-semibold text-surface-900">{edu.institution}</h3>
-                    <p className={`text-xs font-medium mt-0.5 ${iconFg}`}>{edu.program}</p>
-                </div>
-            </div>
-            <span className="text-xs text-surface-400">
-                {edu.start_year} — {edu.end_year ?? 'Present'}
-            </span>
-            {edu.description && <p className="text-xs text-surface-500 leading-relaxed mt-2">{edu.description}</p>}
-        </div>
     );
 }
