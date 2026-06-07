@@ -24,6 +24,7 @@ export type Hero = {
     photo_url: string | null;
     cv_url: string | null;
     develop_mode: boolean;
+    is_open_to_work: boolean;
     created_at: string;
     updated_at: string;
 };

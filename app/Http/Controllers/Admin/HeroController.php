@@ -30,6 +30,7 @@ class HeroController extends Controller
             'primary_cta_text' => 'required|string|max:50',
             'secondary_cta_text' => 'required|string|max:50',
             'develop_mode' => 'nullable|boolean',
+            'is_open_to_work' => 'nullable|boolean',
             'photo' => 'nullable|image|max:2048',
             'cv' => 'nullable|file|mimes:pdf,doc,docx|max:5120',
         ]);
@@ -40,7 +41,7 @@ class HeroController extends Controller
             if ($hero->photo_url) {
                 Storage::disk('public')->delete($hero->photo_url);
             }
-            $validated['photo_url'] = ImageOptimizer::storeAsWebP($request->file('photo'), 'hero', 600, 600, 90);
+            $validated['photo_url'] = ImageOptimizer::storeAsWebP($request->file('photo'), 'hero', 480, 600, 90);
         }
 
         if ($request->hasFile('cv')) {
@@ -58,6 +59,7 @@ class HeroController extends Controller
 
         unset($validated['photo'], $validated['cv']);
         $validated['develop_mode'] = $request->boolean('develop_mode');
+        $validated['is_open_to_work'] = $request->boolean('is_open_to_work');
         $hero->fill($validated);
         $hero->save();
         $this->clearPortfolioCache();

@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Model;
     'photo_url',
     'cv_url',
     'develop_mode',
+    'is_open_to_work',
 ])]
 class Hero extends Model
 {
@@ -24,6 +25,7 @@ class Hero extends Model
     {
         return [
             'develop_mode' => 'boolean',
+            'is_open_to_work' => 'boolean',
         ];
     }
 }

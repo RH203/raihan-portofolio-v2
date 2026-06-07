@@ -18,6 +18,7 @@ export default function HeroEdit({ hero }: Props) {
         primary_cta_text: hero?.primary_cta_text || 'View Portfolio',
         secondary_cta_text: hero?.secondary_cta_text || 'Contact Me',
         develop_mode: hero?.develop_mode ?? false,
+        is_open_to_work: hero?.is_open_to_work ?? true,
         photo: null as File | null,
         cv: null as File | null,
         remove_cv: false,
@@ -128,6 +129,34 @@ export default function HeroEdit({ hero }: Props) {
                         </div>
                     </div>
 
+                    <div className="rounded-xl border border-surface-200 bg-surface-50/70 p-4">
+                        <div className="flex items-start justify-between gap-4">
+                            <div className="space-y-1">
+                                <p className="text-sm font-semibold text-surface-900">Availability Badge</p>
+                                <p className="text-sm text-surface-500">
+                                    Controls the small badge shown next to your photo on the hero section.
+                                </p>
+                            </div>
+                            <label htmlFor="is_open_to_work" className="flex cursor-pointer items-center gap-3">
+                                <span className={`relative inline-flex h-6 w-11 rounded-full transition-colors ${data.is_open_to_work ? 'bg-emerald-500' : 'bg-surface-300'}`}>
+                                    <span
+                                        className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${data.is_open_to_work ? 'translate-x-5' : 'translate-x-0.5'}`}
+                                    />
+                                </span>
+                                <input
+                                    id="is_open_to_work"
+                                    type="checkbox"
+                                    checked={data.is_open_to_work}
+                                    onChange={(e) => setData('is_open_to_work', e.target.checked)}
+                                    className="sr-only"
+                                />
+                                <span className="text-sm font-medium text-surface-700">
+                                    {data.is_open_to_work ? 'Open to work' : 'Not accepting opportunities'}
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
                     <div className="space-y-1.5">
                         <label htmlFor="photo" className="block text-sm font-medium text-surface-700">Photo</label>
                         {(photoPreview || hero?.photo_url) && (
@@ -135,7 +164,7 @@ export default function HeroEdit({ hero }: Props) {
                                 <img
                                     src={photoPreview ?? `/storage/${hero!.photo_url}`}
                                     alt="Current"
-                                    className="h-20 w-20 rounded-full object-cover border border-surface-200"
+                                    className="h-32 w-26 rounded-md object-cover border border-surface-200 aspect-4/5"
                                 />
                                 {photoPreview && (
                                     <p className="mt-1 text-xs text-primary-600 font-medium">Preview (not saved yet)</p>
@@ -144,7 +173,7 @@ export default function HeroEdit({ hero }: Props) {
                         )}
                         <input id="photo" type="file" accept="image/*" onChange={handlePhotoSelect}
                             className="block w-full text-sm text-surface-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100" />
-                        <p className="text-xs text-surface-400">Photo will be cropped to a circle (1:1 ratio). Max 2MB.</p>
+                        <p className="text-xs text-surface-400">Photo will be cropped to a portrait frame (4:5 ratio). Max 2MB.</p>
                         {errors.photo && <p className="text-xs text-danger-500">{errors.photo}</p>}
                     </div>
                 </div>
@@ -221,7 +250,7 @@ export default function HeroEdit({ hero }: Props) {
             {cropSrc && (
                 <ImageCropper
                     imageSrc={cropSrc}
-                    aspect={1}
+                    aspect={4 / 5}
                     onCropDone={handleCropDone}
                     onCancel={() => setCropSrc(null)}
                 />
