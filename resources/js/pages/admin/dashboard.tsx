@@ -13,6 +13,7 @@ import {
     Star,
     Users,
 } from 'lucide-react';
+import { useState } from 'react';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 interface Props {
@@ -33,6 +34,14 @@ const statCards = [
 
 export default function Dashboard({ stats, recentMessages, pageViewsChart, contactsChart, github }: Props) {
     const totalViewsThisMonth = pageViewsChart.reduce((sum, d) => sum + (d.views ?? 0), 0);
+    const [activeChart, setActiveChart] = useState<'views' | 'contacts'>('views');
+
+    const githubFigures = [
+        { label: 'Repositories', value: github.public_repos },
+        { label: 'Stars', value: github.total_stars },
+        { label: 'Followers', value: github.followers },
+        { label: 'Languages', value: Object.keys(github.languages).length },
+    ];
 
     return (
         <AdminLayout title="Dashboard" description="Overview of your portfolio content">

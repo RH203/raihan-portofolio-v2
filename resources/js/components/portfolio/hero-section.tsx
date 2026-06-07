@@ -1,5 +1,4 @@
 import type { Hero } from '@/types';
-import { cn } from '@/lib/utils';
 import { ArrowDown, Code2, Download, Send } from 'lucide-react';
 
 interface HeroSectionProps {
@@ -80,75 +79,90 @@ export function HeroSection({ hero }: HeroSectionProps) {
     }
 
     return (
-        <section id="home" className="relative min-h-screen flex items-center pt-20" aria-labelledby="hero-heading">
-            {/* Subtle background gradient */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary-50/50 via-white to-accent-50/30 -z-10" aria-hidden="true" />
-            <div className="absolute top-20 right-10 w-72 h-72 bg-primary-100/40 rounded-full blur-3xl -z-10" aria-hidden="true" />
-            <div className="absolute bottom-20 left-10 w-96 h-96 bg-accent-50/40 rounded-full blur-3xl -z-10" aria-hidden="true" />
+        <section id="home" className="relative flex min-h-screen items-center overflow-hidden pt-20" aria-labelledby="hero-heading">
+            {/* Fine dotted grid backdrop — quiet, technical, no gradient blobs */}
+            <div className="absolute inset-0 -z-10 bg-white" aria-hidden="true" />
+            <div
+                className="absolute inset-0 -z-10 opacity-60"
+                style={{ backgroundImage: 'radial-gradient(circle, #e2e8f0 1px, transparent 1px)', backgroundSize: '32px 32px' }}
+                aria-hidden="true"
+            />
+            <div className="absolute inset-x-0 top-20 -z-10 h-px bg-surface-200" aria-hidden="true" />
 
-            <div className="mx-auto max-w-6xl px-6 py-20 w-full">
-                <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="mx-auto w-full max-w-6xl px-6 py-20">
+                <div className="grid items-center gap-16 lg:grid-cols-[1.1fr_0.9fr]">
                     <div className="order-2 lg:order-1">
-                        <p className="text-primary-600 font-medium text-sm tracking-wide uppercase mb-3">
+                        <div className="mb-5 inline-flex items-center gap-2 font-mono text-xs tracking-[0.25em] text-primary-600 uppercase">
+                            <span className="h-1.5 w-1.5 rounded-full bg-primary-600" aria-hidden="true" />
                             {hero.role}
-                        </p>
-                        <h1 id="hero-heading" className="text-4xl sm:text-5xl lg:text-6xl font-bold text-surface-900 leading-tight tracking-tight">
+                        </div>
+                        <h1 id="hero-heading" className="text-4xl leading-[1.1] font-bold tracking-tight text-surface-900 sm:text-5xl lg:text-6xl">
                             {hero.headline}
                         </h1>
-                        <p className="mt-6 text-lg text-surface-500 leading-relaxed max-w-xl">
-                            {hero.description}
-                        </p>
-                        <div className="mt-8 flex flex-wrap gap-3">
+                        <p className="mt-6 max-w-xl text-lg leading-relaxed text-surface-500">{hero.description}</p>
+
+                        <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
                             <button
                                 onClick={() => scrollTo('#portfolio')}
-                                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-primary-600 text-white font-medium text-sm hover:bg-primary-700 active:bg-primary-800 transition-all duration-200 shadow-sm shadow-primary-600/20 hover:shadow-md hover:shadow-primary-600/30"
+                                className="group inline-flex items-center gap-2.5 rounded-full bg-surface-900 px-6 py-3 text-sm font-medium text-white transition-colors duration-200 hover:bg-primary-600"
                             >
                                 {hero.primary_cta_text}
-                                <ArrowDown className="h-4 w-4" aria-hidden="true" />
+                                <ArrowDown className="h-4 w-4 transition-transform duration-200 group-hover:translate-y-0.5" aria-hidden="true" />
                             </button>
                             <button
                                 onClick={() => scrollTo('#contact')}
-                                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-surface-300 text-surface-700 font-medium text-sm hover:bg-surface-50 active:bg-surface-100 transition-all duration-200"
+                                className="group inline-flex items-center gap-2 border-b border-surface-300 pb-0.5 text-sm font-medium text-surface-700 transition-colors duration-200 hover:border-primary-600 hover:text-primary-600"
                             >
                                 {hero.secondary_cta_text}
-                                <Send className="h-4 w-4" aria-hidden="true" />
+                                <Send className="h-3.5 w-3.5" aria-hidden="true" />
                             </button>
                             {hero.cv_url && (
                                 <a
                                     href={`/storage/${hero.cv_url}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-primary-200 bg-primary-50 text-primary-700 font-medium text-sm hover:bg-primary-100 active:bg-primary-200 transition-all duration-200"
+                                    className="inline-flex items-center gap-2 text-sm font-medium text-surface-400 transition-colors duration-200 hover:text-surface-700"
                                     aria-label="View latest CV"
                                 >
-                                    <Download className="h-4 w-4" aria-hidden="true" />
+                                    <Download className="h-3.5 w-3.5" aria-hidden="true" />
                                     View CV
                                 </a>
                             )}
                         </div>
                     </div>
 
-                    {/* Avatar / illustration area */}
-                    <div className="order-1 lg:order-2 flex justify-center">
-                        <div className="relative">
-                            <div className="w-64 h-64 sm:w-80 sm:h-80 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center overflow-hidden">
+                    {/* Framed portrait — offset border frame instead of circular glow avatar */}
+                    <div className="order-1 flex justify-center lg:order-2 lg:justify-end">
+                        <div className="relative w-full max-w-xs lg:max-w-sm">
+                            <div
+                                className="absolute inset-0 translate-x-3 translate-y-3 rounded-sm border border-surface-300"
+                                aria-hidden="true"
+                            />
+                            <div className="relative aspect-4/5 overflow-hidden rounded-sm border border-surface-200 bg-surface-100">
                                 {hero.photo_url ? (
                                     <img
                                         src={`/storage/${hero.photo_url}`}
                                         alt="Raihan Firdaus — Full-Stack Developer and Flutter Developer based in Surabaya, Indonesia"
-                                        className="w-full h-full object-cover"
+                                        className="h-full w-full object-cover grayscale-15"
                                         loading="lazy"
-                                        width={320}
-                                        height={320}
+                                        width={384}
+                                        height={480}
                                     />
                                 ) : (
-                                    <span className="text-7xl sm:text-8xl font-bold text-primary-400/60">
-                                        {hero.name?.charAt(0) ?? '?'}
-                                    </span>
+                                    <div className="flex h-full w-full items-center justify-center">
+                                        <span className="text-7xl font-bold text-primary-300">{hero.name?.charAt(0) ?? '?'}</span>
+                                    </div>
                                 )}
                             </div>
-                            <div className="absolute -bottom-2 -right-2 w-20 h-20 bg-accent-500/10 rounded-full blur-xl" aria-hidden="true" />
-                            <div className="absolute -top-4 -left-4 w-16 h-16 bg-primary-500/10 rounded-full blur-xl" aria-hidden="true" />
+                            <div className="absolute -bottom-4 -left-4 inline-flex items-center gap-2 rounded-full border border-surface-200 bg-white px-3.5 py-2 shadow-sm">
+                                <span
+                                    className={`h-2 w-2 rounded-full ${hero.is_open_to_work ? 'bg-emerald-500' : 'bg-surface-300'}`}
+                                    aria-hidden="true"
+                                />
+                                <span className="text-xs font-medium whitespace-nowrap text-surface-600">
+                                    {hero.is_open_to_work ? 'Open to freelance work' : 'Not taking new projects'}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
