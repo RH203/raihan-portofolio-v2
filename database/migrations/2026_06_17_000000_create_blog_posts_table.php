@@ -15,8 +15,10 @@ return new class extends Migration
             $table->text('excerpt');
             $table->longText('content');
             $table->string('cover_image')->nullable();
+            $table->json('tags')->nullable();
             $table->string('meta_title')->nullable();
             $table->string('meta_description', 170)->nullable();
+            $table->boolean('is_featured')->default(false)->index();
             $table->boolean('is_published')->default(false)->index();
             $table->timestamp('published_at')->nullable()->index();
             $table->timestamps();
