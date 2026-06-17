@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\BlogPost;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class BlogController extends Controller
@@ -32,13 +31,11 @@ class BlogController extends Controller
             ->get()
             ->map(fn (BlogPost $post) => $this->summary($post));
 
+        $post = $blogPost->toArray();
+        $post['html'] = $blogPost->content;
+
         return Inertia::render('blog/show', [
-            'post' => array_merge($blogPost->toArray(), [
-                'html' => Str::markdown($blogPost->content, [
-                    'html_input' => 'strip',
-                    'allow_unsafe_links' => false,
-                ]),
-            ]),
+            'post' => $post,
             'related' => $related,
         ]);
     }
