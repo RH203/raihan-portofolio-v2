@@ -95,7 +95,10 @@ export default function BlogShow({ post, related }: { post: Post; related: Relat
                     </div>
 
                     {post.cover_image && <img src={`/storage/${post.cover_image}`} alt={post.title} className="my-10 aspect-[16/9] w-full rounded-2xl object-cover" />}
-                    <div className="prose prose-lg prose-surface max-w-none prose-headings:font-bold prose-a:text-primary-700 prose-img:rounded-xl" dangerouslySetInnerHTML={{ __html: post.html }} />
+                    <div
+                        className="prose prose-lg prose-surface max-w-none [counter-reset:figure] prose-headings:font-bold prose-a:text-primary-700 [&_figure]:my-10 [&_figure]:text-center [&_figure[data-size=compact]]:mx-auto [&_figure[data-size=compact]]:max-w-xl [&_figure[data-size=full]]:w-full [&_figure_img]:mx-auto [&_figure_img]:h-auto [&_figure_img]:max-h-[720px] [&_figure_img]:w-auto [&_figure_img]:max-w-full [&_figure_img]:rounded-xl [&_figcaption]:mt-3 [&_figcaption]:text-sm [&_figcaption]:font-normal [&_figcaption]:text-surface-500 [&_figcaption_[data-figure-label]]:before:[content:'Figure_'_counter(figure)_'—_'] [&_figcaption_[data-figure-label]]:[counter-increment:figure] [&_figcaption_[data-source]]:mt-1 [&_figcaption_[data-source]]:block [&_figcaption_[data-source]]:text-xs [&_figcaption_[data-source]:not(:empty)]:before:[content:'Source:_']"
+                        dangerouslySetInnerHTML={{ __html: post.html }}
+                    />
                 </article>
 
                 {related.length > 0 && <section className="border-t border-surface-200 bg-surface-50"><div className="mx-auto max-w-6xl px-6 py-16"><h2 className="text-2xl font-bold text-surface-950">More stories</h2><div className="mt-8 grid gap-8 md:grid-cols-3">{related.map((item) => <Link key={item.id} href={`/blog/${item.slug}`} className="group"><div className="aspect-[16/10] overflow-hidden rounded-xl bg-surface-200">{item.cover_image && <img src={`/storage/${item.cover_image}`} alt={item.title} loading="lazy" className="h-full w-full object-cover transition group-hover:scale-[1.03]" />}</div><h3 className="mt-4 text-xl font-bold text-surface-950 group-hover:text-primary-700">{item.title}</h3><p className="mt-2 line-clamp-2 text-sm leading-6 text-surface-600">{item.excerpt}</p></Link>)}</div></div></section>}
