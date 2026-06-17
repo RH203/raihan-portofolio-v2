@@ -1,3 +1,4 @@
+import RichTextEditor from '@/components/admin/rich-text-editor';
 import AdminLayout from '@/layouts/admin-layout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeft, Save } from 'lucide-react';
@@ -37,6 +38,7 @@ export default function BlogForm({ post }: { post?: Post }) {
         event.preventDefault();
         const tags = form.data.tags_text.split(',').map((tag) => tag.trim()).filter(Boolean).slice(0, 5);
         form.transform((data) => ({ ...data, tags }));
+
         if (isEditing) {
             form.post(`/admin/blog/${post.id}`, { forceFormData: true, _method: 'put' } as any);
         } else {
@@ -47,14 +49,14 @@ export default function BlogForm({ post }: { post?: Post }) {
     const input = 'block w-full rounded-lg border border-surface-300 px-3.5 py-2.5 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none';
 
     return (
-        <AdminLayout title={isEditing ? 'Edit story' : 'New story'} description="Markdown is supported for headings, lists, links, code, and quotes.">
+        <AdminLayout title={isEditing ? 'Edit story' : 'New story'} description="Use the editor toolbar to format text, add links, lists, quotes, and images.">
             <Head title={isEditing ? 'Edit story' : 'New story'} />
             <Link href="/admin/blog" className="mb-6 inline-flex items-center gap-2 text-sm text-surface-500 hover:text-surface-900"><ArrowLeft className="h-4 w-4" /> Back</Link>
             <form onSubmit={submit} className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
                 <div className="space-y-5 rounded-xl border border-surface-100 bg-white p-6 shadow-sm">
                     <div><label className="mb-1.5 block text-sm font-medium text-surface-700">Title</label><input value={form.data.title} onChange={(e) => form.setData('title', e.target.value)} className={`${input} text-lg font-semibold`} required />{form.errors.title && <p className="mt-1 text-xs text-danger-600">{form.errors.title}</p>}</div>
                     <div><label className="mb-1.5 block text-sm font-medium text-surface-700">Subtitle / excerpt</label><textarea value={form.data.excerpt} onChange={(e) => form.setData('excerpt', e.target.value)} rows={3} className={input} maxLength={500} required /><p className="mt-1 text-right text-xs text-surface-400">{form.data.excerpt.length}/500</p></div>
-                    <div><label className="mb-1.5 block text-sm font-medium text-surface-700">Story</label><textarea value={form.data.content} onChange={(e) => form.setData('content', e.target.value)} rows={24} className={`${input} font-mono leading-7`} placeholder={'## Start with a clear idea\n\nWrite your story here...'} required />{form.errors.content && <p className="mt-1 text-xs text-danger-600">{form.errors.content}</p>}</div>
+                    <div><label className="mb-1.5 block text-sm font-medium text-surface-700">Story</label><RichTextEditor value={form.data.content} onChange={(content) => form.setData('content', content)} />{form.errors.content && <p className="mt-1 text-xs text-danger-600">{form.errors.content}</p>}</div>
                 </div>
 
                 <aside className="space-y-5">
