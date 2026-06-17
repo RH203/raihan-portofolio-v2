@@ -1,5 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft, Clock, Linkedin, Link as LinkIcon, Twitter } from 'lucide-react';
+import { ArrowLeft, Clock, Link as LinkIcon } from 'lucide-react';
 
 const SITE_URL = 'https://www.raihanfirdaus.tech';
 
@@ -88,8 +88,8 @@ export default function BlogShow({ post, related }: { post: Post; related: Relat
                             <div><p className="text-sm font-semibold text-surface-900">Raihan Firdaus</p><p className="flex items-center gap-1 text-xs text-surface-500"><Clock className="h-3.5 w-3.5" /> {post.reading_time} min read · {new Date(post.published_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p></div>
                         </div>
                         <div className="flex gap-2">
-                            <button onClick={() => share('twitter')} aria-label="Share on X" className="rounded-full border border-surface-200 p-2 text-surface-500 hover:text-surface-900"><Twitter className="h-4 w-4" /></button>
-                            <button onClick={() => share('linkedin')} aria-label="Share on LinkedIn" className="rounded-full border border-surface-200 p-2 text-surface-500 hover:text-surface-900"><Linkedin className="h-4 w-4" /></button>
+                            <button onClick={() => share('twitter')} aria-label="Share on X" className="flex h-9 w-9 items-center justify-center rounded-full border border-surface-200 text-sm font-semibold text-surface-500 hover:text-surface-900">X</button>
+                            <button onClick={() => share('linkedin')} aria-label="Share on LinkedIn" className="flex h-9 w-9 items-center justify-center rounded-full border border-surface-200 text-xs font-bold text-surface-500 hover:text-surface-900">in</button>
                             <button onClick={() => navigator.clipboard.writeText(canonical)} aria-label="Copy link" className="rounded-full border border-surface-200 p-2 text-surface-500 hover:text-surface-900"><LinkIcon className="h-4 w-4" /></button>
                         </div>
                     </div>
