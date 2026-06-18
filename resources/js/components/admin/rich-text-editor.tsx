@@ -1,175 +1,173 @@
 import { FigureImage } from '@/components/admin/figure-image-extension';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import LinkExtension from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import {
-    Bold,
-    Heading2,
-    ImagePlus,
-    Italic,
-    Link,
-    List,
-    ListOrdered,
-    Pencil,
-    Quote,
-    Redo2,
-    Undo2,
-} from 'lucide-react';
+import { Bold, Heading2, ImagePlus, Italic, Link, List, ListOrdered, Pencil, Quote, Redo2, Undo2 } from 'lucide-react';
 import { useRef, useState } from 'react';
 
-interface RichTextEditorProps {
+interface Props {
     value: string;
     onChange: (value: string) => void;
 }
 
-interface ImageDimensions {
-    width: number;
-    height: number;
+interface ImageForm {
+    src: string;
+    alt: string;
+    caption: string;
+    source: string;
+    size: 'compact' | 'full';
+    width: number | null;
+    height: number | null;
 }
 
-const getImageDimensions = (url: string): Promise<ImageDimensions> => new Promise((resolve, reject) => {
+const emptyImage: ImageForm = { src: '', alt: '', caption: '', source: '', size: 'full', width: null, height: null };
+
+const getDimensions = (src: string) => new Promise<{ width: number; height: number }>((resolve, reject) => {
     const image = new Image();
     image.onload = () => resolve({ width: image.naturalWidth, height: image.naturalHeight });
-    image.onerror = () => reject(new Error('Unable to read image dimensions.'));
-    image.src = url;
+    image.onerror = () => reject(new Error('Unable to read the uploaded image.'));
+    image.src = src;
 });
 
-export default function RichTextEditor({ value, onChange }: RichTextEditorProps) {
-    const imageInputRef = useRef<HTMLInputElement>(null);
+export default function RichTextEditor({ value, onChange }: Props) {
+    const inputRef = useRef<HTMLInputElement>(null);
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [editingImage, setEditingImage] = useState(false);
     const [uploading, setUploading] = useState(false);
+    const [error, setError] = useState('');
+    const [imageForm, setImageForm] = useState<ImageForm>(emptyImage);
 
     const editor = useEditor({
         extensions: [
             StarterKit.configure({ link: false }),
-            LinkExtension.configure({
-                openOnClick: false,
-                autolink: true,
-                defaultProtocol: 'https',
-            }),
+            LinkExtension.configure({ openOnClick: false, autolink: true, defaultProtocol: 'https' }),
             Placeholder.configure({ placeholder: 'Write your story...' }),
             FigureImage,
         ],
         content: value,
-        editorProps: {
-            attributes: {
-                class: 'prose prose-surface min-h-[440px] max-w-none px-5 py-4 focus:outline-none',
-            },
-        },
+        editorProps: { attributes: { class: 'prose prose-surface min-h-[440px] max-w-none px-5 py-4 focus:outline-none' } },
         onUpdate: ({ editor }) => onChange(editor.getHTML()),
     });
 
     const addLink = () => {
         if (!editor) return;
-
-        const previousUrl = editor.getAttributes('link').href as string | undefined;
-        const url = window.prompt('Link URL', previousUrl || 'https://');
-
+        const url = window.prompt('Link URL', editor.getAttributes('link').href || 'https://');
         if (url === null) return;
-        if (url.trim() === '') {
-            editor.chain().focus().extendMarkRange('link').unsetLink().run();
-            return;
-        }
-
-        editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
-    };
-
-    const editSelectedImage = () => {
-        if (!editor || !editor.isActive('figureImage')) return;
-
-        const attributes = editor.getAttributes('figureImage');
-        const caption = window.prompt('Image caption', attributes.caption || '');
-        if (caption === null) return;
-
-        const source = window.prompt('Image source or reference', attributes.source || '');
-        if (source === null) return;
-
-        const size = window.confirm('Use full width? Select Cancel to keep it compact and centered.')
-            ? 'full'
-            : 'compact';
-
-        editor.chain().focus().updateAttributes('figureImage', {
-            caption: caption.trim(),
-            source: source.trim(),
-            size,
-            alt: caption.trim() || attributes.alt || 'Article image',
-        }).run();
+        if (!url.trim()) editor.chain().focus().unsetLink().run();
+        else editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
     };
 
     const uploadImage = async (file?: File) => {
-        if (!file || !editor) return;
-
+        if (!file) return;
         const token = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content;
         const formData = new FormData();
         formData.append('image', file);
         setUploading(true);
+        setError('');
 
         try {
             const response = await fetch('/admin/blog/upload-image', {
                 method: 'POST',
-                headers: {
-                    Accept: 'application/json',
-                    ...(token ? { 'X-CSRF-TOKEN': token } : {}),
-                },
+                headers: { Accept: 'application/json', ...(token ? { 'X-CSRF-TOKEN': token } : {}) },
                 body: formData,
             });
-
             if (!response.ok) throw new Error('Image upload failed.');
-
             const result = await response.json();
-            const dimensions = await getImageDimensions(result.url);
-            const caption = window.prompt('Image caption, like a Word figure caption', '') || '';
-            const source = window.prompt('Image source or reference', '') || '';
-            const size = dimensions.width <= 720 ? 'compact' : 'full';
-
-            editor.chain().focus().insertContent([
-                {
-                    type: 'figureImage',
-                    attrs: {
-                        src: result.url,
-                        alt: caption || file.name,
-                        caption,
-                        source,
-                        size,
-                        width: dimensions.width,
-                        height: dimensions.height,
-                    },
-                },
-                { type: 'paragraph' },
-            ]).run();
-        } catch (error) {
-            window.alert(error instanceof Error ? error.message : 'Image upload failed.');
+            const dimensions = await getDimensions(result.url);
+            setImageForm({
+                src: result.url,
+                alt: file.name.replace(/\.[^/.]+$/, ''),
+                caption: '',
+                source: '',
+                size: dimensions.width <= 720 ? 'compact' : 'full',
+                width: dimensions.width,
+                height: dimensions.height,
+            });
+            setEditingImage(false);
+            setDialogOpen(true);
+        } catch (e) {
+            setError(e instanceof Error ? e.message : 'Image upload failed.');
+            setDialogOpen(true);
         } finally {
             setUploading(false);
-            if (imageInputRef.current) imageInputRef.current.value = '';
+            if (inputRef.current) inputRef.current.value = '';
         }
     };
 
-    if (!editor) return null;
+    const openSelectedImage = () => {
+        if (!editor?.isActive('figureImage')) return;
+        const attrs = editor.getAttributes('figureImage');
+        setImageForm({
+            src: attrs.src || '', alt: attrs.alt || '', caption: attrs.caption || '', source: attrs.source || '',
+            size: attrs.size === 'compact' ? 'compact' : 'full', width: attrs.width || null, height: attrs.height || null,
+        });
+        setEditingImage(true);
+        setError('');
+        setDialogOpen(true);
+    };
 
-    const buttonClass = (active = false) => `rounded-md p-2 transition ${active ? 'bg-primary-100 text-primary-700' : 'text-surface-600 hover:bg-white hover:text-surface-900'}`;
+    const saveImage = () => {
+        if (!editor || !imageForm.src) return;
+        const attrs = { ...imageForm, alt: imageForm.alt || imageForm.caption || 'Article image' };
+        if (editingImage) editor.chain().focus().updateAttributes('figureImage', attrs).run();
+        else editor.chain().focus().insertContent([{ type: 'figureImage', attrs }, { type: 'paragraph' }]).run();
+        setDialogOpen(false);
+        setImageForm(emptyImage);
+    };
+
+    if (!editor) return null;
+    const button = (active = false) => `rounded-md p-2 ${active ? 'bg-primary-100 text-primary-700' : 'text-surface-600 hover:bg-white hover:text-surface-900'}`;
 
     return (
-        <div className="overflow-hidden rounded-lg border border-surface-300 bg-white focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-500/20">
-            <div className="flex flex-wrap gap-1 border-b border-surface-200 bg-surface-50 p-2">
-                <button type="button" onClick={() => editor.chain().focus().toggleBold().run()} className={buttonClass(editor.isActive('bold'))} title="Bold" aria-label="Bold"><Bold className="h-4 w-4" /></button>
-                <button type="button" onClick={() => editor.chain().focus().toggleItalic().run()} className={buttonClass(editor.isActive('italic'))} title="Italic" aria-label="Italic"><Italic className="h-4 w-4" /></button>
-                <button type="button" onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} className={buttonClass(editor.isActive('heading', { level: 2 }))} title="Heading" aria-label="Heading"><Heading2 className="h-4 w-4" /></button>
-                <button type="button" onClick={() => editor.chain().focus().toggleBlockquote().run()} className={buttonClass(editor.isActive('blockquote'))} title="Quote" aria-label="Quote"><Quote className="h-4 w-4" /></button>
-                <button type="button" onClick={() => editor.chain().focus().toggleBulletList().run()} className={buttonClass(editor.isActive('bulletList'))} title="Bulleted list" aria-label="Bulleted list"><List className="h-4 w-4" /></button>
-                <button type="button" onClick={() => editor.chain().focus().toggleOrderedList().run()} className={buttonClass(editor.isActive('orderedList'))} title="Numbered list" aria-label="Numbered list"><ListOrdered className="h-4 w-4" /></button>
-                <button type="button" onClick={addLink} className={buttonClass(editor.isActive('link'))} title="Link" aria-label="Link"><Link className="h-4 w-4" /></button>
-                <button type="button" onClick={() => imageInputRef.current?.click()} disabled={uploading} className={buttonClass()} title="Insert image" aria-label="Insert image"><ImagePlus className="h-4 w-4" /></button>
-                <button type="button" onClick={editSelectedImage} disabled={!editor.isActive('figureImage')} className={buttonClass(editor.isActive('figureImage'))} title="Edit image caption and source" aria-label="Edit image caption and source"><Pencil className="h-4 w-4" /></button>
-                <button type="button" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} className={buttonClass()} title="Undo" aria-label="Undo"><Undo2 className="h-4 w-4" /></button>
-                <button type="button" onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} className={buttonClass()} title="Redo" aria-label="Redo"><Redo2 className="h-4 w-4" /></button>
-                <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={(event) => uploadImage(event.target.files?.[0])} />
-                {uploading && <span className="self-center px-2 text-xs text-surface-500">Uploading and converting to WebP...</span>}
+        <>
+            <div className="overflow-hidden rounded-lg border border-surface-300 bg-white focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-500/20">
+                <div className="flex flex-wrap gap-1 border-b border-surface-200 bg-surface-50 p-2">
+                    <button type="button" onClick={() => editor.chain().focus().toggleBold().run()} className={button(editor.isActive('bold'))}><Bold className="h-4 w-4" /></button>
+                    <button type="button" onClick={() => editor.chain().focus().toggleItalic().run()} className={button(editor.isActive('italic'))}><Italic className="h-4 w-4" /></button>
+                    <button type="button" onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} className={button(editor.isActive('heading', { level: 2 }))}><Heading2 className="h-4 w-4" /></button>
+                    <button type="button" onClick={() => editor.chain().focus().toggleBlockquote().run()} className={button(editor.isActive('blockquote'))}><Quote className="h-4 w-4" /></button>
+                    <button type="button" onClick={() => editor.chain().focus().toggleBulletList().run()} className={button(editor.isActive('bulletList'))}><List className="h-4 w-4" /></button>
+                    <button type="button" onClick={() => editor.chain().focus().toggleOrderedList().run()} className={button(editor.isActive('orderedList'))}><ListOrdered className="h-4 w-4" /></button>
+                    <button type="button" onClick={addLink} className={button(editor.isActive('link'))}><Link className="h-4 w-4" /></button>
+                    <button type="button" onClick={() => inputRef.current?.click()} disabled={uploading} className={button()}><ImagePlus className="h-4 w-4" /></button>
+                    <button type="button" onClick={openSelectedImage} disabled={!editor.isActive('figureImage')} className={button(editor.isActive('figureImage'))}><Pencil className="h-4 w-4" /></button>
+                    <button type="button" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} className={button()}><Undo2 className="h-4 w-4" /></button>
+                    <button type="button" onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} className={button()}><Redo2 className="h-4 w-4" /></button>
+                    <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={(e) => uploadImage(e.target.files?.[0])} />
+                    {uploading && <span className="self-center px-2 text-xs text-surface-500">Uploading and converting to WebP...</span>}
+                </div>
+                <div className="rich-text-editor"><EditorContent editor={editor} /></div>
             </div>
 
-            <div className="[counter-reset:figure] [&_figure]:my-8 [&_figure]:text-center [&_figure[data-size=compact]]:mx-auto [&_figure[data-size=compact]]:max-w-xl [&_figure[data-size=full]]:w-full [&_figure_img]:mx-auto [&_figure_img]:h-auto [&_figure_img]:max-h-[680px] [&_figure_img]:w-auto [&_figure_img]:max-w-full [&_figure_img]:rounded-xl [&_figcaption]:mt-3 [&_figcaption]:text-sm [&_figcaption]:text-surface-500 [&_figcaption_[data-figure-label]]:before:[content:'Figure_'_counter(figure)_'—_'] [&_figcaption_[data-figure-label]]:[counter-increment:figure] [&_figcaption_[data-source]]:mt-1 [&_figcaption_[data-source]]:block [&_figcaption_[data-source]]:text-xs [&_figcaption_[data-source]:not(:empty)]:before:[content:'Source:_']">
-                <EditorContent editor={editor} />
-            </div>
-        </div>
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>{editingImage ? 'Edit image' : 'Insert image'}</DialogTitle>
+                        <DialogDescription>Add a Word-style caption and image source, then choose how it appears in the article.</DialogDescription>
+                    </DialogHeader>
+                    {imageForm.src && <img src={imageForm.src} alt="Preview" className="max-h-64 w-full rounded-lg object-contain" />}
+                    {error && <p className="rounded-lg bg-danger-50 px-3 py-2 text-sm text-danger-600">{error}</p>}
+                    <div className="space-y-4">
+                        <div><label className="mb-1 block text-sm font-medium">Alt text</label><input value={imageForm.alt} onChange={(e) => setImageForm({ ...imageForm, alt: e.target.value })} className="w-full rounded-lg border border-surface-300 px-3 py-2 text-sm" /></div>
+                        <div><label className="mb-1 block text-sm font-medium">Caption</label><input value={imageForm.caption} onChange={(e) => setImageForm({ ...imageForm, caption: e.target.value })} className="w-full rounded-lg border border-surface-300 px-3 py-2 text-sm" placeholder="Figure description" /></div>
+                        <div><label className="mb-1 block text-sm font-medium">Source / reference</label><input value={imageForm.source} onChange={(e) => setImageForm({ ...imageForm, source: e.target.value })} className="w-full rounded-lg border border-surface-300 px-3 py-2 text-sm" placeholder="Example: Laravel documentation" /></div>
+                        <div><label className="mb-1 block text-sm font-medium">Display size</label><select value={imageForm.size} onChange={(e) => setImageForm({ ...imageForm, size: e.target.value as 'compact' | 'full' })} className="w-full rounded-lg border border-surface-300 px-3 py-2 text-sm"><option value="compact">Compact and centered</option><option value="full">Full article width</option></select></div>
+                    </div>
+                    <DialogFooter>
+                        <button type="button" onClick={() => setDialogOpen(false)} className="rounded-lg border border-surface-300 px-4 py-2 text-sm font-medium">Cancel</button>
+                        <button type="button" onClick={saveImage} disabled={!imageForm.src || !!error} className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50">{editingImage ? 'Update image' : 'Insert image'}</button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+        </>
     );
 }
