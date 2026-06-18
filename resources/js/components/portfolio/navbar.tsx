@@ -9,6 +9,7 @@ const navItems = [
     { label: 'Timeline', href: '#timeline' },
     { label: 'Projects', href: '#projects' },
     { label: 'Services', href: '#services' },
+    { label: 'Blog', href: '#blog' },
     { label: 'Contact', href: '#contact' },
 ];
 
@@ -36,10 +37,12 @@ export function Navbar({ isDevelopMode = false }: NavbarProps) {
             },
             { rootMargin: '-40% 0px -60% 0px' },
         );
+
         navItems.forEach(({ href }) => {
-            const el = document.querySelector(href);
-            if (el) observer.observe(el);
+            const element = document.querySelector(href);
+            if (element) observer.observe(element);
         });
+
         return () => observer.disconnect();
     }, []);
 
@@ -69,11 +72,10 @@ export function Navbar({ isDevelopMode = false }: NavbarProps) {
                     portfolio
                 </Link>
 
-                {/* Desktop nav */}
                 <ul className="hidden md:flex items-center gap-0.5" role="list">
-                    {navItems.map(({ label, href }, idx) => (
+                    {navItems.map(({ label, href }, index) => (
                         <li key={href} className="flex items-center">
-                            {idx > 0 && <span className={cn('mx-1 text-xs', isDevelopMode ? 'text-white/10' : 'text-surface-200')}>/</span>}
+                            {index > 0 && <span className={cn('mx-1 text-xs', isDevelopMode ? 'text-white/10' : 'text-surface-200')}>/</span>}
                             <button
                                 onClick={() => handleClick(href)}
                                 className={cn(
@@ -93,7 +95,6 @@ export function Navbar({ isDevelopMode = false }: NavbarProps) {
                     ))}
                 </ul>
 
-                {/* Mobile toggle */}
                 <button
                     onClick={() => setMobileOpen(!mobileOpen)}
                     className={cn(
@@ -107,7 +108,6 @@ export function Navbar({ isDevelopMode = false }: NavbarProps) {
                 </button>
             </nav>
 
-            {/* Mobile nav */}
             {mobileOpen && (
                 <div
                     className={cn(
