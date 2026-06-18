@@ -9,9 +9,7 @@ export type User = {
     [key: string]: unknown;
 };
 
-export type Auth = {
-    user: User;
-};
+export type Auth = { user: User };
 
 export type Hero = {
     id: number;
@@ -92,11 +90,26 @@ export type ContactMessage = {
     updated_at: string;
 };
 
+export type BlogPostSummary = {
+    id: number;
+    title: string;
+    slug: string;
+    excerpt: string;
+    cover_image: string | null;
+    is_published: boolean;
+    is_featured: boolean;
+    published_at: string | null;
+    updated_at: string;
+};
+
 export type DashboardStats = {
     skills: number;
     experiences: number;
     education: number;
     projects: number;
+    blogs: number;
+    publishedBlogs: number;
+    draftBlogs: number;
     messages: number;
     unreadMessages: number;
     totalViews: number;
