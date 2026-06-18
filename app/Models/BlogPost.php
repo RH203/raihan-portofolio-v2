@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 
 class BlogPost extends Model
 {
@@ -34,7 +33,8 @@ class BlogPost extends Model
 
     public function getReadingTimeAttribute(): int
     {
-        $words = str_word_count(strip_tags(Str::markdown($this->content ?? '')));
+        $words = str_word_count(trim(strip_tags($this->content ?? '')));
+
         return max(1, (int) ceil($words / 200));
     }
 
