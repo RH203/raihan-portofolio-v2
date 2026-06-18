@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BlogPost;
 use App\Models\ContactMessage;
 use App\Models\Education;
 use App\Models\Experience;
@@ -20,11 +21,25 @@ class PortfolioController extends Controller
     {
         $data = Cache::remember('portfolio_data', 3600, function () {
             return [
-                'hero'        => Hero::first()?->toArray(),
-                'skills'      => Skill::orderBy('category')->orderBy('sort_order')->get()->toArray(),
+                'hero' => Hero::first()?->toArray(),
+                'skills' => Skill::orderBy('category')->orderBy('sort_order')->get()->toArray(),
                 'experiences' => Experience::orderBy('sort_order')->get()->toArray(),
-                'education'   => Education::orderBy('sort_order')->get()->toArray(),
-                'projects'    => Project::orderBy('sort_order')->get()->toArray(),
+                'education' => Education::orderBy('sort_order')->get()->toArray(),
+                'projects' => Project::orderBy('sort_order')->get()->toArray(),
+                'blogPosts' => BlogPost::published()
+                    ->latest('published_at')
+                    ->take(3)
+                    ->get([
+                        'id',
+                        'title',
+                        'slug',
+                        'excerpt',
+                        'cover_image',
+                        'tags',
+                        'published_at',
+                        'content',
+                    ])
+                    ->toArray(),
                 'socialLinks' => SocialLink::where('is_active', true)->orderBy('sort_order')->get()->toArray(),
             ];
         });
