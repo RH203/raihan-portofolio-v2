@@ -95,7 +95,7 @@ export default function BlogShow({ post, related }: { post: Post; related: Relat
                     </div>
 
                     {post.cover_image && <img src={`/storage/${post.cover_image}`} alt={post.title} className="my-10 aspect-[16/9] w-full rounded-2xl object-cover" />}
-                    <div className="prose prose-lg prose-surface max-w-none prose-headings:font-bold prose-a:text-primary-700 prose-img:rounded-xl" dangerouslySetInnerHTML={{ __html: post.html }} />
+                    <div className="article-content prose prose-lg prose-surface max-w-none prose-headings:font-bold prose-a:text-primary-700" dangerouslySetInnerHTML={{ __html: post.html }} />
                 </article>
 
                 {related.length > 0 && <section className="border-t border-surface-200 bg-surface-50"><div className="mx-auto max-w-6xl px-6 py-16"><h2 className="text-2xl font-bold text-surface-950">More stories</h2><div className="mt-8 grid gap-8 md:grid-cols-3">{related.map((item) => <Link key={item.id} href={`/blog/${item.slug}`} className="group"><div className="aspect-[16/10] overflow-hidden rounded-xl bg-surface-200">{item.cover_image && <img src={`/storage/${item.cover_image}`} alt={item.title} loading="lazy" className="h-full w-full object-cover transition group-hover:scale-[1.03]" />}</div><h3 className="mt-4 text-xl font-bold text-surface-950 group-hover:text-primary-700">{item.title}</h3><p className="mt-2 line-clamp-2 text-sm leading-6 text-surface-600">{item.excerpt}</p></Link>)}</div></div></section>}
