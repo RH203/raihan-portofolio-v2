@@ -1,3 +1,4 @@
+import { BlogSection, type PortfolioBlogPost } from '@/components/portfolio/blog-section';
 import { ContactSection } from '@/components/portfolio/contact-section';
 import { GitHubSection } from '@/components/portfolio/github-section';
 import { Footer } from '@/components/portfolio/footer';
@@ -16,21 +17,17 @@ interface Props {
     experiences: Experience[];
     education: Education[];
     projects: Project[];
+    blogPosts: PortfolioBlogPost[];
     socialLinks: SocialLink[];
     github: GitHubData;
 }
 
-// ---------------------------------------------------------------------------
-// SEO constants — hardcoded for keyword consistency regardless of DB content.
-// Update SITE_URL to your real production domain before deploying.
-// ---------------------------------------------------------------------------
 const SITE_URL = 'https://www.raihanfirdaus.tech';
 const SEO_TITLE = 'Raihan Firdaus — Full-Stack & Flutter Developer | Surabaya, Indonesia';
 const SEO_DESCRIPTION =
     'Raihan Firdaus is a freelance Full-Stack Developer, Back-End Developer, and Flutter Developer based in Surabaya, East Java, Indonesia. Specializing in Laravel, RESTful API development, Livewire, and Flutter mobile app development. Available for freelance web and mobile development projects.';
 const OG_IMAGE = `${SITE_URL}/og-image.jpg`;
 
-// JSON-LD structured data — Person + WebSite + ProfilePage schemas.
 const jsonLd = JSON.stringify([
     {
         '@context': 'https://schema.org',
@@ -94,19 +91,17 @@ const jsonLd = JSON.stringify([
     },
 ]);
 
-export default function PortfolioIndex({ hero, skills, experiences, education, projects, socialLinks, github }: Props) {
+export default function PortfolioIndex({ hero, skills, experiences, education, projects, blogPosts, socialLinks, github }: Props) {
     const isDevelopMode = hero?.develop_mode ?? false;
 
     return (
         <>
             <Head>
-                {/* Primary SEO */}
                 <title>{SEO_TITLE}</title>
                 <meta name="description" content={SEO_DESCRIPTION} />
                 <meta name="robots" content="index, follow" />
                 <link rel="canonical" href={SITE_URL} />
 
-                {/* Open Graph */}
                 <meta property="og:type" content="profile" />
                 <meta property="og:title" content={SEO_TITLE} />
                 <meta property="og:description" content={SEO_DESCRIPTION} />
@@ -120,21 +115,18 @@ export default function PortfolioIndex({ hero, skills, experiences, education, p
                 <meta property="profile:first_name" content="Raihan" />
                 <meta property="profile:last_name" content="Firdaus" />
 
-                {/* Twitter Card */}
                 <meta name="twitter:card" content="summary_large_image" />
                 <meta name="twitter:title" content={SEO_TITLE} />
                 <meta name="twitter:description" content={SEO_DESCRIPTION} />
                 <meta name="twitter:image" content={OG_IMAGE} />
                 <meta name="twitter:image:alt" content="Raihan Firdaus — Full-Stack & Flutter Developer" />
 
-                {/* Additional identity signals */}
                 <meta name="author" content="Raihan Firdaus" />
                 <meta
                     name="keywords"
                     content="Raihan Firdaus, Laravel developer, Flutter developer, backend developer, full-stack developer, mobile developer, freelance software engineer, Surabaya developer, Indonesia developer, RESTful API developer"
                 />
 
-                {/* JSON-LD Structured Data */}
                 <script type="application/ld+json">{jsonLd}</script>
             </Head>
 
@@ -152,6 +144,7 @@ export default function PortfolioIndex({ hero, skills, experiences, education, p
                         <TimelineSection experiences={experiences} education={education} />
                         <PortfolioSection projects={projects} isDevelopMode={false} />
                         <ServicesSection />
+                        <BlogSection posts={blogPosts} />
                         <GitHubSection github={github} />
                         <ContactSection socialLinks={socialLinks} />
                     </main>
