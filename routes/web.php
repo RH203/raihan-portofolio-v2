@@ -50,6 +50,7 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::resource('education', EducationController::class)->except(['show']);
     Route::resource('projects', ProjectController::class)->except(['show']);
     Route::post('/projects/{project}', [ProjectController::class, 'update'])->name('projects.update.post');
+    Route::post('/blog/upload-image', [BlogPostController::class, 'uploadImage'])->name('blog.upload-image');
     Route::resource('blog', BlogPostController::class)->except(['show']);
     Route::post('/blog/{blogPost}', [BlogPostController::class, 'update'])->name('blog.update.post');
     Route::get('/messages', [ContactMessageController::class, 'index'])->name('messages.index');
