@@ -2,7 +2,7 @@ import RichTextEditor from '@/components/admin/rich-text-editor';
 import AdminLayout from '@/layouts/admin-layout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeft, Save } from 'lucide-react';
-import { type FormEvent } from 'react';
+import { type FormEvent, useEffect } from 'react';
 
 type Post = {
     id: number;
@@ -18,28 +18,49 @@ type Post = {
     published_at?: string | null;
 };
 
+type BlogFormData = {
+    title: string;
+    excerpt: string;
+    content: string;
+    cover_image: File | null;
+    tags_text: string;
+    tags: string[];
+    meta_title: string;
+    meta_description: string;
+    is_featured: boolean;
+    is_published: boolean;
+    published_at: string;
+};
+
+const dataFromPost = (post?: Post): BlogFormData => ({
+    title: post?.title ?? '',
+    excerpt: post?.excerpt ?? '',
+    content: post?.content ?? '',
+    cover_image: null,
+    tags_text: post?.tags?.join(', ') ?? '',
+    tags: post?.tags ?? [],
+    meta_title: post?.meta_title ?? '',
+    meta_description: post?.meta_description ?? '',
+    is_featured: post?.is_featured ?? false,
+    is_published: post?.is_published ?? false,
+    published_at: post?.published_at ? post.published_at.slice(0, 16) : '',
+});
+
 export default function BlogForm({ post }: { post?: Post }) {
-    const isEditing = !!post;
-    const form = useForm({
-        title: post?.title || '',
-        excerpt: post?.excerpt || '',
-        content: post?.content || '',
-        cover_image: null as File | null,
-        tags_text: post?.tags?.join(', ') || '',
-        tags: post?.tags || ([] as string[]),
-        meta_title: post?.meta_title || '',
-        meta_description: post?.meta_description || '',
-        is_featured: post?.is_featured || false,
-        is_published: post?.is_published || false,
-        published_at: post?.published_at ? post.published_at.slice(0, 16) : '',
-    });
+    const isEditing = Boolean(post);
+    const form = useForm<BlogFormData>(dataFromPost(post));
+
+    useEffect(() => {
+        form.setData(dataFromPost(post));
+        form.clearErrors();
+    }, [post?.id]);
 
     const submit = (event: FormEvent) => {
         event.preventDefault();
         const tags = form.data.tags_text.split(',').map((tag) => tag.trim()).filter(Boolean).slice(0, 5);
         form.transform((data) => ({ ...data, tags }));
 
-        if (isEditing) {
+        if (post) {
             form.post(`/admin/blog/${post.id}`, { forceFormData: true, _method: 'put' } as any);
         } else {
             form.post('/admin/blog', { forceFormData: true });
@@ -56,7 +77,7 @@ export default function BlogForm({ post }: { post?: Post }) {
                 <div className="space-y-5 rounded-xl border border-surface-100 bg-white p-6 shadow-sm">
                     <div><label className="mb-1.5 block text-sm font-medium text-surface-700">Title</label><input value={form.data.title} onChange={(e) => form.setData('title', e.target.value)} className={`${input} text-lg font-semibold`} required />{form.errors.title && <p className="mt-1 text-xs text-danger-600">{form.errors.title}</p>}</div>
                     <div><label className="mb-1.5 block text-sm font-medium text-surface-700">Subtitle / excerpt</label><textarea value={form.data.excerpt} onChange={(e) => form.setData('excerpt', e.target.value)} rows={3} className={input} maxLength={500} required /><p className="mt-1 text-right text-xs text-surface-400">{form.data.excerpt.length}/500</p></div>
-                    <div><label className="mb-1.5 block text-sm font-medium text-surface-700">Story</label><RichTextEditor value={form.data.content} onChange={(content) => form.setData('content', content)} />{form.errors.content && <p className="mt-1 text-xs text-danger-600">{form.errors.content}</p>}</div>
+                    <div><label className="mb-1.5 block text-sm font-medium text-surface-700">Story</label><RichTextEditor key={post?.id ?? 'create'} value={form.data.content} onChange={(content) => form.setData('content', content)} />{form.errors.content && <p className="mt-1 text-xs text-danger-600">{form.errors.content}</p>}</div>
                 </div>
 
                 <aside className="space-y-5">
