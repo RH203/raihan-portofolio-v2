@@ -3,16 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Models\BlogPost;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class BlogController extends Controller
 {
     public function index()
     {
+        $posts = BlogPost::published()
+            ->latest('published_at')
+            ->paginate(9)
+            ->through(fn (BlogPost $post) => $this->summary($post));
+
         return Inertia::render('blog/index', [
-            'featured' => BlogPost::published()->where('is_featured', true)->latest('published_at')->first(),
-            'posts' => BlogPost::published()->latest('published_at')->paginate(9)->through(fn (BlogPost $post) => $this->summary($post)),
+            'featured' => BlogPost::published()
+                ->where('is_featured', true)
+                ->latest('published_at')
+                ->first() ?? BlogPost::published()->latest('published_at')->first(),
+            'posts' => $posts,
         ]);
     }
 
@@ -32,13 +39,11 @@ class BlogController extends Controller
             ->get()
             ->map(fn (BlogPost $post) => $this->summary($post));
 
+        $post = $blogPost->toArray();
+        $post['html'] = $blogPost->content;
+
         return Inertia::render('blog/show', [
-            'post' => array_merge($blogPost->toArray(), [
-                'html' => Str::markdown($blogPost->content, [
-                    'html_input' => 'strip',
-                    'allow_unsafe_links' => false,
-                ]),
-            ]),
+            'post' => $post,
             'related' => $related,
         ]);
     }
