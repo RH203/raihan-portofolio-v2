@@ -12,7 +12,6 @@
         'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
         'Noto Color Emoji';
 
-    /* Primary palette - Indigo */
     --color-primary-50: #eef2ff;
     --color-primary-100: #e0e7ff;
     --color-primary-200: #c7d2fe;
@@ -24,7 +23,6 @@
     --color-primary-800: #3730a3;
     --color-primary-900: #312e81;
 
-    /* Neutral */
     --color-surface-50: #f8fafc;
     --color-surface-100: #f1f5f9;
     --color-surface-200: #e2e8f0;
@@ -36,38 +34,103 @@
     --color-surface-800: #1e293b;
     --color-surface-900: #0f172a;
 
-    /* Accent - Emerald */
     --color-accent-50: #ecfdf5;
     --color-accent-500: #10b981;
     --color-accent-600: #059669;
 
-    /* Danger - Rose */
     --color-danger-50: #fff1f2;
     --color-danger-500: #f43f5e;
     --color-danger-600: #e11d48;
 
-    /* Warning - Amber */
     --color-warning-50: #fffbeb;
     --color-warning-500: #f59e0b;
     --color-warning-600: #d97706;
 }
 
-/* Base resets */
 @layer base {
-    html {
-        scroll-behavior: smooth;
+    html { scroll-behavior: smooth; }
+    body { @apply bg-white text-surface-800 antialiased; }
+    ::selection { @apply bg-primary-100 text-primary-900; }
+    :focus-visible { @apply outline-2 outline-offset-2 outline-primary-500; }
+}
+
+@layer components {
+    .article-content,
+    .rich-text-editor {
+        counter-reset: article-figure;
     }
 
-    body {
-        @apply bg-white text-surface-800 antialiased;
+    .article-content figure[data-type='figure-image'],
+    .rich-text-editor figure[data-type='figure-image'] {
+        counter-increment: article-figure;
+        margin-block: 2.5rem;
+        text-align: center;
     }
 
-    ::selection {
-        @apply bg-primary-100 text-primary-900;
+    .article-content figure[data-size='compact'],
+    .rich-text-editor figure[data-size='compact'] {
+        width: fit-content;
+        max-width: min(100%, 42rem);
+        margin-inline: auto;
     }
 
-    /* Focus ring for accessibility */
-    :focus-visible {
-        @apply outline-2 outline-offset-2 outline-primary-500;
+    .article-content figure[data-size='full'],
+    .rich-text-editor figure[data-size='full'] {
+        width: 100%;
+    }
+
+    .article-content figure img,
+    .rich-text-editor figure img {
+        display: block;
+        width: auto;
+        max-width: 100%;
+        height: auto;
+        max-height: 45rem;
+        margin-inline: auto;
+        border-radius: 0.75rem;
+        object-fit: contain;
+    }
+
+    .article-content figcaption,
+    .rich-text-editor figcaption {
+        margin-top: 0.75rem;
+        color: var(--color-surface-500);
+        font-size: 0.875rem;
+        font-weight: 400;
+        line-height: 1.5;
+        text-align: center;
+    }
+
+    .article-content [data-figure-label]::before,
+    .rich-text-editor [data-figure-label]::before {
+        content: 'Figure ' counter(article-figure) ' — ';
+        color: var(--color-surface-700);
+        font-weight: 600;
+    }
+
+    .article-content [data-source],
+    .rich-text-editor [data-source] {
+        display: block;
+        margin-top: 0.25rem;
+        font-size: 0.75rem;
+    }
+
+    .article-content [data-source]:not(:empty)::before,
+    .rich-text-editor [data-source]:not(:empty)::before {
+        content: 'Source: ';
+        font-weight: 500;
+    }
+
+    .rich-text-editor .ProseMirror-selectednode {
+        outline: 2px solid var(--color-primary-500);
+        outline-offset: 0.25rem;
+    }
+
+    .rich-text-editor .is-editor-empty:first-child::before {
+        color: var(--color-surface-400);
+        content: attr(data-placeholder);
+        float: left;
+        height: 0;
+        pointer-events: none;
     }
 }
