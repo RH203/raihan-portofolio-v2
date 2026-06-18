@@ -7,6 +7,7 @@ use App\Models\BlogPost;
 use App\Services\ImageOptimizer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -35,6 +36,7 @@ class BlogPostController extends Controller
         $data['published_at'] = $data['is_published'] ? ($data['published_at'] ?: now()) : null;
 
         BlogPost::create($data);
+        Cache::forget('portfolio_data');
 
         return to_route('admin.blog.index')->with('success', 'Story created.');
     }
@@ -71,6 +73,7 @@ class BlogPostController extends Controller
         }
 
         $blogPost->update($data);
+        Cache::forget('portfolio_data');
 
         return to_route('admin.blog.index')->with('success', 'Story updated.');
     }
@@ -102,6 +105,7 @@ class BlogPostController extends Controller
         }
 
         $blogPost->delete();
+        Cache::forget('portfolio_data');
 
         return back()->with('success', 'Story deleted.');
     }

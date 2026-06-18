@@ -9,9 +9,17 @@ class BlogController extends Controller
 {
     public function index()
     {
+        $posts = BlogPost::published()
+            ->latest('published_at')
+            ->paginate(9)
+            ->through(fn (BlogPost $post) => $this->summary($post));
+
         return Inertia::render('blog/index', [
-            'featured' => BlogPost::published()->where('is_featured', true)->latest('published_at')->first(),
-            'posts' => BlogPost::published()->latest('published_at')->paginate(9)->through(fn (BlogPost $post) => $this->summary($post)),
+            'featured' => BlogPost::published()
+                ->where('is_featured', true)
+                ->latest('published_at')
+                ->first() ?? BlogPost::published()->latest('published_at')->first(),
+            'posts' => $posts,
         ]);
     }
 
