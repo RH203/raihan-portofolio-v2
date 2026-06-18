@@ -50,11 +50,17 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::resource('education', EducationController::class)->except(['show']);
     Route::resource('projects', ProjectController::class)->except(['show']);
     Route::post('/projects/{project}', [ProjectController::class, 'update'])->name('projects.update.post');
+
     Route::post('/blog/upload-image', [BlogPostController::class, 'uploadImage'])->name('blog.upload-image');
-    Route::resource('blog', BlogPostController::class)
-        ->except(['show'])
-        ->parameters(['blog' => 'blogPost']);
-    Route::post('/blog/{blogPost}', [BlogPostController::class, 'update'])->name('blog.update.post');
+    Route::get('/blog', [BlogPostController::class, 'index'])->name('blog.index');
+    Route::get('/blog/create', [BlogPostController::class, 'create'])->name('blog.create');
+    Route::post('/blog', [BlogPostController::class, 'store'])->name('blog.store');
+    Route::get('/blog/{blogPost:id}/edit', [BlogPostController::class, 'edit'])->name('blog.edit');
+    Route::put('/blog/{blogPost:id}', [BlogPostController::class, 'update'])->name('blog.update');
+    Route::patch('/blog/{blogPost:id}', [BlogPostController::class, 'update']);
+    Route::post('/blog/{blogPost:id}', [BlogPostController::class, 'update'])->name('blog.update.post');
+    Route::delete('/blog/{blogPost:id}', [BlogPostController::class, 'destroy'])->name('blog.destroy');
+
     Route::get('/messages', [ContactMessageController::class, 'index'])->name('messages.index');
     Route::get('/messages/{message}', [ContactMessageController::class, 'show'])->name('messages.show');
     Route::patch('/messages/{message}/toggle-read', [ContactMessageController::class, 'toggleRead'])->name('messages.toggle-read');
