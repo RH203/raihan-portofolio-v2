@@ -67,5 +67,7 @@ class ProcessBlogCoverImage implements ShouldQueue
         ]);
 
         Storage::disk('local')->delete($this->temporaryPath);
+        Cache::forget('portfolio_data');
+        Cache::store('redis')->tags(['blog'])->flush();
     }
 }
