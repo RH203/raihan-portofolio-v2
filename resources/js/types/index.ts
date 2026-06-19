@@ -98,6 +98,10 @@ export type BlogPostSummary = {
     cover_image: string | null;
     is_published: boolean;
     is_featured: boolean;
+    share_count: number;
+    x_share_count: number;
+    linkedin_share_count: number;
+    copy_share_count: number;
     published_at: string | null;
     updated_at: string;
 };
@@ -110,6 +114,7 @@ export type DashboardStats = {
     blogs: number;
     publishedBlogs: number;
     draftBlogs: number;
+    totalShares: number;
     messages: number;
     unreadMessages: number;
     totalViews: number;

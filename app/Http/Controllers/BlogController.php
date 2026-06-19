@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\BlogPost;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class BlogController extends Controller
@@ -48,10 +51,37 @@ class BlogController extends Controller
         ]);
     }
 
+    public function recordShare(Request $request, BlogPost $blogPost): JsonResponse
+    {
+        abort_unless($blogPost->is_published && $blogPost->published_at?->isPast(), 404);
+
+        $validated = $request->validate([
+            'platform' => ['required', Rule::in(['x', 'linkedin', 'copy'])],
+        ]);
+
+        $column = match ($validated['platform']) {
+            'x' => 'x_share_count',
+            'linkedin' => 'linkedin_share_count',
+            'copy' => 'copy_share_count',
+        };
+
+        BlogPost::whereKey($blogPost->getKey())->increment($column);
+        $blogPost->refresh();
+
+        return response()->json([
+            'share_count' => $blogPost->share_count,
+            'shares' => [
+                'x' => $blogPost->x_share_count,
+                'linkedin' => $blogPost->linkedin_share_count,
+                'copy' => $blogPost->copy_share_count,
+            ],
+        ]);
+    }
+
     private function summary(BlogPost $post): array
     {
         return $post->only([
-            'id', 'title', 'slug', 'excerpt', 'cover_image', 'tags', 'reading_time', 'published_at', 'is_featured',
+            'id', 'title', 'slug', 'excerpt', 'cover_image', 'tags', 'reading_time', 'share_count', 'published_at', 'is_featured',
         ]);
     }
 }

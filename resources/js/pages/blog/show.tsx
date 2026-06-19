@@ -1,5 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft, Clock, Link as LinkIcon } from 'lucide-react';
+import { ArrowLeft, Clock, Link as LinkIcon, Share2 } from 'lucide-react';
+import { useState } from 'react';
 
 const SITE_URL = 'https://www.raihanfirdaus.tech';
 
@@ -12,6 +13,10 @@ type Post = {
     cover_image?: string | null;
     tags?: string[];
     reading_time: number;
+    share_count: number;
+    x_share_count: number;
+    linkedin_share_count: number;
+    copy_share_count: number;
     published_at: string;
     updated_at: string;
     meta_title?: string | null;
@@ -20,7 +25,10 @@ type Post = {
 
 type RelatedPost = Pick<Post, 'id' | 'title' | 'slug' | 'excerpt' | 'cover_image' | 'tags' | 'reading_time' | 'published_at'>;
 
+type SharePlatform = 'x' | 'linkedin' | 'copy';
+
 export default function BlogShow({ post, related }: { post: Post; related: RelatedPost[] }) {
+    const [shareCount, setShareCount] = useState(post.share_count ?? 0);
     const canonical = `${SITE_URL}/blog/${post.slug}`;
     const title = post.meta_title || `${post.title} — Raihan Firdaus`;
     const description = post.meta_description || post.excerpt;
@@ -39,11 +47,39 @@ export default function BlogShow({ post, related }: { post: Post; related: Relat
         keywords: post.tags?.join(', '),
     });
 
-    const share = (platform: 'twitter' | 'linkedin') => {
-        const url = platform === 'twitter'
+    const recordShare = async (platform: SharePlatform) => {
+        const token = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content;
+
+        try {
+            const response = await fetch(`/blog/${post.slug}/share`, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    ...(token ? { 'X-CSRF-TOKEN': token } : {}),
+                },
+                body: JSON.stringify({ platform }),
+            });
+
+            if (!response.ok) return;
+            const result = await response.json();
+            setShareCount(result.share_count);
+        } catch {
+            // Sharing must still work even if analytics cannot be recorded.
+        }
+    };
+
+    const share = async (platform: 'x' | 'linkedin') => {
+        await recordShare(platform);
+        const url = platform === 'x'
             ? `https://twitter.com/intent/tweet?url=${encodeURIComponent(canonical)}&text=${encodeURIComponent(post.title)}`
             : `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(canonical)}`;
         window.open(url, '_blank', 'noopener,noreferrer');
+    };
+
+    const copyLink = async () => {
+        await navigator.clipboard.writeText(canonical);
+        await recordShare('copy');
     };
 
     return (
@@ -85,12 +121,21 @@ export default function BlogShow({ post, related }: { post: Post; related: Relat
                     <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-y border-surface-200 py-5">
                         <div className="flex items-center gap-3">
                             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-100 text-sm font-bold text-primary-700">RF</div>
-                            <div><p className="text-sm font-semibold text-surface-900">Raihan Firdaus</p><p className="flex items-center gap-1 text-xs text-surface-500"><Clock className="h-3.5 w-3.5" /> {post.reading_time} min read · {new Date(post.published_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p></div>
+                            <div>
+                                <p className="text-sm font-semibold text-surface-900">Raihan Firdaus</p>
+                                <p className="flex flex-wrap items-center gap-2 text-xs text-surface-500">
+                                    <span className="inline-flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {post.reading_time} min read</span>
+                                    <span>·</span>
+                                    <span>{new Date(post.published_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                                    <span>·</span>
+                                    <span className="inline-flex items-center gap-1"><Share2 className="h-3.5 w-3.5" /> {shareCount} shares</span>
+                                </p>
+                            </div>
                         </div>
                         <div className="flex gap-2">
-                            <button onClick={() => share('twitter')} aria-label="Share on X" className="flex h-9 w-9 items-center justify-center rounded-full border border-surface-200 text-sm font-semibold text-surface-500 hover:text-surface-900">X</button>
+                            <button onClick={() => share('x')} aria-label="Share on X" className="flex h-9 w-9 items-center justify-center rounded-full border border-surface-200 text-sm font-semibold text-surface-500 hover:text-surface-900">X</button>
                             <button onClick={() => share('linkedin')} aria-label="Share on LinkedIn" className="flex h-9 w-9 items-center justify-center rounded-full border border-surface-200 text-xs font-bold text-surface-500 hover:text-surface-900">in</button>
-                            <button onClick={() => navigator.clipboard.writeText(canonical)} aria-label="Copy link" className="rounded-full border border-surface-200 p-2 text-surface-500 hover:text-surface-900"><LinkIcon className="h-4 w-4" /></button>
+                            <button onClick={copyLink} aria-label="Copy link" className="rounded-full border border-surface-200 p-2 text-surface-500 hover:text-surface-900"><LinkIcon className="h-4 w-4" /></button>
                         </div>
                     </div>
 

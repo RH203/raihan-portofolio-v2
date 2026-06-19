@@ -20,6 +20,9 @@ Route::get('/', [PortfolioController::class, 'index'])->middleware(TrackPageView
 Route::post('/contact', [PortfolioController::class, 'submitContact'])->name('contact.submit');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{blogPost:slug}', [BlogController::class, 'show'])->name('blog.show');
+Route::post('/blog/{blogPost:slug}/share', [BlogController::class, 'recordShare'])
+    ->middleware('throttle:60,1')
+    ->name('blog.share');
 
 Route::get('/sitemap.xml', function () {
     $urls = collect([

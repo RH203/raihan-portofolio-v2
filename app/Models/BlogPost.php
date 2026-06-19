@@ -20,9 +20,12 @@ class BlogPost extends Model
         'is_featured' => 'boolean',
         'is_published' => 'boolean',
         'published_at' => 'datetime',
+        'x_share_count' => 'integer',
+        'linkedin_share_count' => 'integer',
+        'copy_share_count' => 'integer',
     ];
 
-    protected $appends = ['reading_time'];
+    protected $appends = ['reading_time', 'share_count'];
 
     public function scopePublished(Builder $query): Builder
     {
@@ -36,6 +39,13 @@ class BlogPost extends Model
         $words = str_word_count(trim(strip_tags($this->content ?? '')));
 
         return max(1, (int) ceil($words / 200));
+    }
+
+    public function getShareCountAttribute(): int
+    {
+        return (int) $this->x_share_count
+            + (int) $this->linkedin_share_count
+            + (int) $this->copy_share_count;
     }
 
     public function getRouteKeyName(): string
