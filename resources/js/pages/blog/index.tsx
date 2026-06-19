@@ -44,8 +44,8 @@ export default function BlogIndex({ featured, posts }: { featured?: Post | null;
             <main className="mx-auto max-w-6xl px-6 py-14">
                 <div className="mb-14 max-w-2xl">
                     <p className="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-primary-600">Writing</p>
-                    <h1 className="text-4xl font-bold tracking-tight text-surface-950 sm:text-6xl">Ideas, lessons, and code.</h1>
-                    <p className="mt-5 text-lg leading-8 text-surface-600">Notes from building web and mobile products in the real world.</p>
+                    <h1 className="article-heading text-4xl font-bold tracking-tight text-surface-950 sm:text-6xl">Ideas, lessons, and code.</h1>
+                    <p className="article-excerpt mt-5 text-lg leading-8 text-surface-600">Notes from building web and mobile products in the real world.</p>
                 </div>
 
                 {featured && (
@@ -55,15 +55,15 @@ export default function BlogIndex({ featured, posts }: { featured?: Post | null;
                         </div>
                         <div className="flex flex-col justify-center p-8 sm:p-12">
                             <span className="mb-4 text-sm font-semibold text-primary-600">Featured story</span>
-                            <h2 className="text-3xl font-bold tracking-tight text-surface-950 group-hover:text-primary-700">{featured.title}</h2>
-                            <p className="mt-4 line-clamp-3 leading-7 text-surface-600">{featured.excerpt}</p>
+                            <h2 className="article-heading text-3xl font-bold tracking-tight text-surface-950 group-hover:text-primary-700">{featured.title}</h2>
+                            <p className="article-excerpt mt-4 line-clamp-3 leading-7 text-surface-600">{featured.excerpt}</p>
                             <div className="mt-6 flex items-center gap-2 text-sm text-surface-500"><Clock className="h-4 w-4" /> {featured.reading_time} min read</div>
                         </div>
                     </Link>
                 )}
 
                 <div className="mb-8 flex items-end justify-between gap-4">
-                    <div><p className="text-sm font-semibold uppercase tracking-[0.16em] text-primary-600">Latest articles</p><h2 className="mt-2 text-3xl font-bold text-surface-950">All stories</h2></div>
+                    <div><p className="text-sm font-semibold uppercase tracking-[0.16em] text-primary-600">Latest articles</p><h2 className="article-heading mt-2 text-3xl font-bold text-surface-950">All stories</h2></div>
                     <span className="text-sm text-surface-500">{posts.data.length} article{posts.data.length === 1 ? '' : 's'} on this page</span>
                 </div>
 
@@ -83,8 +83,8 @@ export default function BlogIndex({ featured, posts }: { featured?: Post | null;
                                     </div>
                                     <div className="flex flex-1 flex-col p-6">
                                         <div className="flex flex-wrap gap-2">{post.tags?.map((tag) => <span key={tag} className="rounded-full bg-surface-100 px-3 py-1 text-xs text-surface-600">{tag}</span>)}</div>
-                                        <h3 className="mt-4 text-2xl font-bold tracking-tight text-surface-950 group-hover:text-primary-700">{post.title}</h3>
-                                        <p className="mt-3 line-clamp-3 leading-7 text-surface-600">{post.excerpt}</p>
+                                        <h3 className="article-heading mt-4 text-2xl font-bold tracking-tight text-surface-950 group-hover:text-primary-700">{post.title}</h3>
+                                        <p className="article-excerpt mt-3 line-clamp-3 leading-7 text-surface-600">{post.excerpt}</p>
                                         <div className="mt-auto flex items-center justify-between pt-6 text-sm text-surface-500"><span>{post.reading_time} min read</span><ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" /></div>
                                     </div>
                                 </Link>
