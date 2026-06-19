@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
     'primary_cta_text',
     'secondary_cta_text',
     'photo_url',
+    'photo_processing_status',
     'cv_url',
     'develop_mode',
     'is_open_to_work',
