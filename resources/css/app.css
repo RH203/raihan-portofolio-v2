@@ -73,6 +73,20 @@
 }
 
 @layer components {
+    .article-heading,
+    .article-excerpt,
+    .article-content p,
+    .article-content li,
+    .article-content h2,
+    .article-content h3,
+    .article-content h4,
+    .article-content blockquote {
+        text-align: justify;
+        text-justify: inter-word;
+        hyphens: auto;
+        overflow-wrap: anywhere;
+    }
+
     .article-content,
     .rich-text-editor {
         counter-reset: article-figure;
