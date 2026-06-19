@@ -38,6 +38,12 @@ class DashboardController extends Controller
             'contact' => (int) ($contactsRaw[$date] ?? 0),
         ])->values()->toArray();
 
+        $shareTotals = BlogPost::query()->selectRaw('
+            COALESCE(SUM(x_share_count), 0) as x,
+            COALESCE(SUM(linkedin_share_count), 0) as linkedin,
+            COALESCE(SUM(copy_share_count), 0) as copy_link
+        ')->first();
+
         return Inertia::render('admin/dashboard', [
             'stats' => [
                 'skills' => Skill::count(),
@@ -47,13 +53,20 @@ class DashboardController extends Controller
                 'blogs' => BlogPost::count(),
                 'publishedBlogs' => BlogPost::published()->count(),
                 'draftBlogs' => BlogPost::where('is_published', false)->count(),
+                'totalShares' => (int) $shareTotals->x + (int) $shareTotals->linkedin + (int) $shareTotals->copy_link,
                 'messages' => ContactMessage::count(),
                 'unreadMessages' => ContactMessage::where('is_read', false)->count(),
                 'totalViews' => PageView::sum('count'),
             ],
+            'shareTotals' => [
+                'x' => (int) $shareTotals->x,
+                'linkedin' => (int) $shareTotals->linkedin,
+                'copy' => (int) $shareTotals->copy_link,
+            ],
             'recentMessages' => ContactMessage::latest()->take(5)->get(),
             'recentPosts' => BlogPost::latest('updated_at')->take(5)->get([
-                'id', 'title', 'slug', 'excerpt', 'cover_image', 'is_published', 'is_featured', 'published_at', 'updated_at',
+                'id', 'title', 'slug', 'excerpt', 'cover_image', 'is_published', 'is_featured',
+                'x_share_count', 'linkedin_share_count', 'copy_share_count', 'published_at', 'updated_at',
             ]),
             'pageViewsChart' => $pageViewsChart,
             'contactsChart' => $contactsChart,
