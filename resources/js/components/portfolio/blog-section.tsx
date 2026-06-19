@@ -25,8 +25,8 @@ export function BlogSection({ posts }: Props) {
                 <div className="mb-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
                     <div className="max-w-2xl">
                         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary-600">Latest writing</p>
-                        <h2 className="mt-3 text-3xl font-bold tracking-tight text-surface-950 sm:text-4xl">Ideas, lessons, and code</h2>
-                        <p className="mt-4 leading-7 text-surface-600">Practical notes from building web, mobile, and backend products.</p>
+                        <h2 className="article-heading mt-3 text-3xl font-bold tracking-tight text-surface-950 sm:text-4xl">Ideas, lessons, and code</h2>
+                        <p className="article-excerpt mt-4 leading-7 text-surface-600">Practical notes from building web, mobile, and backend products.</p>
                     </div>
                     <Link href="/blog" className="inline-flex items-center gap-2 text-sm font-semibold text-primary-600 hover:text-primary-700">
                         View all articles <ArrowRight className="h-4 w-4" />
@@ -63,8 +63,8 @@ export function BlogSection({ posts }: Props) {
                                         </div>
                                     )}
 
-                                    <h3 className="text-xl font-bold tracking-tight text-surface-950 transition group-hover:text-primary-700">{post.title}</h3>
-                                    <p className="mt-3 line-clamp-3 leading-7 text-surface-600">{post.excerpt}</p>
+                                    <h3 className="article-heading text-xl font-bold tracking-tight text-surface-950 transition group-hover:text-primary-700">{post.title}</h3>
+                                    <p className="article-excerpt mt-3 line-clamp-3 leading-7 text-surface-600">{post.excerpt}</p>
 
                                     <div className="mt-auto flex items-center justify-between pt-6 text-sm text-surface-500">
                                         <span className="inline-flex items-center gap-1.5"><Clock className="h-4 w-4" /> {post.reading_time} min read</span>
