@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\BlogPost;
+use App\Services\BlogCacheService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -10,45 +11,26 @@ use Inertia\Inertia;
 
 class BlogController extends Controller
 {
-    public function index()
+    public function index(Request $request, BlogCacheService $cache)
     {
-        $posts = BlogPost::published()
-            ->latest('published_at')
-            ->paginate(9)
-            ->through(fn (BlogPost $post) => $this->summary($post));
+        $data = $cache->index(max(1, $request->integer('page', 1)));
 
-        return Inertia::render('blog/index', [
-            'featured' => BlogPost::published()
-                ->where('is_featured', true)
-                ->latest('published_at')
-                ->first() ?? BlogPost::published()->latest('published_at')->first(),
-            'posts' => $posts,
-        ]);
+        return Inertia::render('blog/index', $data);
     }
 
-    public function show(BlogPost $blogPost)
+    public function show(BlogPost $blogPost, BlogCacheService $cache)
     {
         abort_unless($blogPost->is_published && $blogPost->published_at?->isPast(), 404);
 
-        $related = BlogPost::published()
-            ->whereKeyNot($blogPost->getKey())
-            ->when($blogPost->tags, fn ($query) => $query->where(function ($query) use ($blogPost) {
-                foreach ($blogPost->tags as $tag) {
-                    $query->orWhereJsonContains('tags', $tag);
-                }
-            }))
-            ->latest('published_at')
-            ->limit(3)
-            ->get()
-            ->map(fn (BlogPost $post) => $this->summary($post));
-
-        $post = $blogPost->toArray();
-        $post['html'] = $blogPost->content;
-
-        return Inertia::render('blog/show', [
-            'post' => $post,
-            'related' => $related,
+        $data = $cache->article($blogPost);
+        $data['post'] = array_merge($data['post'], [
+            'x_share_count' => $blogPost->x_share_count,
+            'linkedin_share_count' => $blogPost->linkedin_share_count,
+            'copy_share_count' => $blogPost->copy_share_count,
+            'share_count' => $blogPost->share_count,
         ]);
+
+        return Inertia::render('blog/show', $data);
     }
 
     public function recordShare(Request $request, BlogPost $blogPost): JsonResponse
@@ -75,13 +57,6 @@ class BlogController extends Controller
                 'linkedin' => $blogPost->linkedin_share_count,
                 'copy' => $blogPost->copy_share_count,
             ],
-        ]);
-    }
-
-    private function summary(BlogPost $post): array
-    {
-        return $post->only([
-            'id', 'title', 'slug', 'excerpt', 'cover_image', 'tags', 'reading_time', 'share_count', 'published_at', 'is_featured',
         ]);
     }
 }
