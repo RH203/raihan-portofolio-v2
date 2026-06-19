@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\ProcessBlogCoverImage;
 use App\Models\BlogPost;
+use App\Services\BlogCacheService;
 use App\Services\ImageOptimizer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -26,19 +28,35 @@ class BlogPostController extends Controller
         return Inertia::render('admin/blog/form');
     }
 
-    public function store(Request $request)
+    public function store(Request $request, BlogCacheService $cache)
     {
         $data = $this->validated($request);
+        $cover = $request->file('cover_image');
+        unset($data['cover_image']);
+
         $data['slug'] = $this->uniqueSlug($data['title']);
-        $data['cover_image'] = $request->hasFile('cover_image')
-            ? ImageOptimizer::storeAsWebP($request->file('cover_image'), 'blog/covers', 1600, 900, 84)
-            : null;
         $data['published_at'] = $data['is_published'] ? ($data['published_at'] ?: now()) : null;
+        $data['cover_image_status'] = $cover ? 'processing' : 'completed';
 
-        BlogPost::create($data);
+        $blogPost = BlogPost::create($data);
+
+        if ($cover) {
+            $temporaryPath = $cover->store('temporary/blog-covers', 'local');
+            ProcessBlogCoverImage::dispatch(
+                $blogPost->id,
+                $temporaryPath,
+                $cover->getClientOriginalExtension()
+            );
+        }
+
         Cache::forget('portfolio_data');
+        $cache->flush();
 
-        return to_route('admin.blog.index')->with('success', 'Story created.');
+        $message = $cover
+            ? 'Story created. The cover image is being processed.'
+            : 'Story created.';
+
+        return to_route('admin.blog.index')->with('success', $message);
     }
 
     public function edit(BlogPost $blogPost)
@@ -46,9 +64,12 @@ class BlogPostController extends Controller
         return Inertia::render('admin/blog/form', ['post' => $blogPost]);
     }
 
-    public function update(Request $request, BlogPost $blogPost)
+    public function update(Request $request, BlogPost $blogPost, BlogCacheService $cache)
     {
         $data = $this->validated($request, $blogPost);
+        $cover = $request->file('cover_image');
+        unset($data['cover_image']);
+
         $data['slug'] = $data['title'] === $blogPost->title
             ? $blogPost->slug
             : $this->uniqueSlug($data['title'], $blogPost->id);
@@ -56,26 +77,31 @@ class BlogPostController extends Controller
             ? ($data['published_at'] ?: $blogPost->published_at ?: now())
             : null;
 
-        if ($request->hasFile('cover_image')) {
-            if ($blogPost->cover_image) {
-                Storage::disk('public')->delete($blogPost->cover_image);
-            }
-
-            $data['cover_image'] = ImageOptimizer::storeAsWebP(
-                $request->file('cover_image'),
-                'blog/covers',
-                1600,
-                900,
-                84
-            );
-        } else {
-            unset($data['cover_image']);
+        if ($cover) {
+            $data['cover_image_status'] = 'processing';
         }
 
+        $oldCoverPath = $blogPost->cover_image;
         $blogPost->update($data);
-        Cache::forget('portfolio_data');
 
-        return to_route('admin.blog.index')->with('success', 'Story updated.');
+        if ($cover) {
+            $temporaryPath = $cover->store('temporary/blog-covers', 'local');
+            ProcessBlogCoverImage::dispatch(
+                $blogPost->id,
+                $temporaryPath,
+                $cover->getClientOriginalExtension(),
+                $oldCoverPath
+            );
+        }
+
+        Cache::forget('portfolio_data');
+        $cache->flush();
+
+        $message = $cover
+            ? 'Story updated. The new cover image is being processed.'
+            : 'Story updated.';
+
+        return to_route('admin.blog.index')->with('success', $message);
     }
 
     public function uploadImage(Request $request): JsonResponse
@@ -98,7 +124,7 @@ class BlogPostController extends Controller
         ]);
     }
 
-    public function destroy(BlogPost $blogPost)
+    public function destroy(BlogPost $blogPost, BlogCacheService $cache)
     {
         if ($blogPost->cover_image) {
             Storage::disk('public')->delete($blogPost->cover_image);
@@ -106,6 +132,7 @@ class BlogPostController extends Controller
 
         $blogPost->delete();
         Cache::forget('portfolio_data');
+        $cache->flush();
 
         return back()->with('success', 'Story deleted.');
     }
