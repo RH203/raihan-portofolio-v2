@@ -1,6 +1,6 @@
 import AdminLayout from '@/layouts/admin-layout';
 import { Head, Link, router } from '@inertiajs/react';
-import { Copy, Edit3, Linkedin, Plus, Share2, Trash2 } from 'lucide-react';
+import { Copy, Edit3, Plus, Share2, Trash2 } from 'lucide-react';
 
 type Post = {
     id: number;
@@ -41,7 +41,7 @@ export default function BlogIndex({ posts }: { posts: Pagination<Post> }) {
                                 <div className="flex items-center gap-3 rounded-lg bg-surface-50 px-3 py-2 text-xs text-surface-600" title="Share breakdown">
                                     <span className="inline-flex items-center gap-1 font-semibold text-surface-900"><Share2 className="h-3.5 w-3.5" /> {post.share_count}</span>
                                     <span className="inline-flex items-center gap-1"><span className="font-semibold">X</span> {post.x_share_count}</span>
-                                    <span className="inline-flex items-center gap-1"><Linkedin className="h-3.5 w-3.5" /> {post.linkedin_share_count}</span>
+                                    <span className="inline-flex items-center gap-1"><span className="font-bold">in</span> {post.linkedin_share_count}</span>
                                     <span className="inline-flex items-center gap-1"><Copy className="h-3.5 w-3.5" /> {post.copy_share_count}</span>
                                 </div>
 
