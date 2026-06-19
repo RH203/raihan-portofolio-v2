@@ -29,7 +29,6 @@ class ProcessBlogCoverImage implements ShouldQueue
         public ?string $oldCoverPath = null,
     ) {
         $this->onConnection('redis');
-        $this->onQueue('images');
     }
 
     public function handle(BlogCacheService $cache): void
