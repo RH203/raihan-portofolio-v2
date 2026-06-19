@@ -11,6 +11,7 @@ import {
     GraduationCap,
     Mail,
     MessageSquare,
+    Share2,
     Star,
     Users,
 } from 'lucide-react';
@@ -18,6 +19,11 @@ import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YA
 
 interface Props {
     stats: DashboardStats;
+    shareTotals: {
+        x: number;
+        linkedin: number;
+        copy: number;
+    };
     recentMessages: ContactMessage[];
     recentPosts: BlogPostSummary[];
     pageViewsChart: ChartPoint[];
@@ -34,7 +40,7 @@ const statCards = [
     { key: 'messages' as const, label: 'Messages', icon: MessageSquare, color: 'bg-rose-50 text-rose-600', href: '/admin/messages' },
 ];
 
-export default function Dashboard({ stats, recentMessages, recentPosts, pageViewsChart, contactsChart, github }: Props) {
+export default function Dashboard({ stats, shareTotals, recentMessages, recentPosts, pageViewsChart, contactsChart, github }: Props) {
     const totalViewsThisMonth = pageViewsChart.reduce((sum, point) => sum + (point.views ?? 0), 0);
 
     return (
@@ -56,7 +62,7 @@ export default function Dashboard({ stats, recentMessages, recentPosts, pageView
                 </div>
             </div>
 
-            <div className="mb-6 grid gap-4 sm:grid-cols-3">
+            <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 <Link href="/admin/blog" className="rounded-xl border border-surface-100 bg-white p-5 shadow-sm">
                     <p className="text-sm text-surface-500">All stories</p>
                     <p className="mt-1 text-2xl font-bold text-surface-900">{stats.blogs}</p>
@@ -68,6 +74,14 @@ export default function Dashboard({ stats, recentMessages, recentPosts, pageView
                 <Link href="/admin/blog" className="rounded-xl border border-surface-100 bg-white p-5 shadow-sm">
                     <p className="text-sm text-surface-500">Drafts</p>
                     <p className="mt-1 text-2xl font-bold text-amber-600">{stats.draftBlogs}</p>
+                </Link>
+                <Link href="/admin/blog" className="rounded-xl border border-surface-100 bg-white p-5 shadow-sm">
+                    <div className="flex items-center justify-between">
+                        <p className="text-sm text-surface-500">Total Shares</p>
+                        <Share2 className="h-4 w-4 text-primary-600" />
+                    </div>
+                    <p className="mt-1 text-2xl font-bold text-primary-600">{stats.totalShares}</p>
+                    <p className="mt-2 text-xs text-surface-400">X {shareTotals.x} · in {shareTotals.linkedin} · Copy {shareTotals.copy}</p>
                 </Link>
             </div>
 
@@ -103,7 +117,7 @@ export default function Dashboard({ stats, recentMessages, recentPosts, pageView
 
             <div className="mb-6 rounded-xl border border-surface-100 bg-white shadow-sm">
                 <div className="flex items-center justify-between border-b border-surface-100 px-5 py-4">
-                    <div><h2 className="font-semibold text-surface-900">Recent Blog Posts</h2><p className="text-xs text-surface-400">Latest drafts and published stories</p></div>
+                    <div><h2 className="font-semibold text-surface-900">Recent Blog Posts</h2><p className="text-xs text-surface-400">Latest drafts, published stories, and shares</p></div>
                     <div className="flex gap-3"><Link href="/blog" target="_blank" className="text-sm font-medium text-surface-500">View public blog</Link><Link href="/admin/blog" className="text-sm font-medium text-primary-600">Manage</Link></div>
                 </div>
                 {recentPosts.length === 0 ? (
@@ -114,6 +128,7 @@ export default function Dashboard({ stats, recentMessages, recentPosts, pageView
                             <Link key={post.id} href={`/admin/blog/${post.id}/edit`} className="flex items-center gap-4 px-5 py-4 hover:bg-surface-50">
                                 <div className="h-14 w-20 shrink-0 overflow-hidden rounded-lg bg-surface-100">{post.cover_image && <img src={`/storage/${post.cover_image}`} alt="" className="h-full w-full object-cover" />}</div>
                                 <div className="min-w-0 flex-1"><p className="truncate text-sm font-medium text-surface-900">{post.title}</p><p className="mt-1 truncate text-xs text-surface-400">{post.excerpt}</p></div>
+                                <span className="inline-flex items-center gap-1 text-xs font-medium text-surface-500"><Share2 className="h-3.5 w-3.5" /> {post.share_count}</span>
                                 <span className={`rounded-full px-2 py-1 text-xs font-medium ${post.is_published ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>{post.is_published ? 'Published' : 'Draft'}</span>
                             </Link>
                         ))}
