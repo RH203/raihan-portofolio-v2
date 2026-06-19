@@ -9,9 +9,7 @@ export type User = {
     [key: string]: unknown;
 };
 
-export type Auth = {
-    user: User;
-};
+export type Auth = { user: User };
 
 export type Hero = {
     id: number;
@@ -92,11 +90,31 @@ export type ContactMessage = {
     updated_at: string;
 };
 
+export type BlogPostSummary = {
+    id: number;
+    title: string;
+    slug: string;
+    excerpt: string;
+    cover_image: string | null;
+    is_published: boolean;
+    is_featured: boolean;
+    share_count: number;
+    x_share_count: number;
+    linkedin_share_count: number;
+    copy_share_count: number;
+    published_at: string | null;
+    updated_at: string;
+};
+
 export type DashboardStats = {
     skills: number;
     experiences: number;
     education: number;
     projects: number;
+    blogs: number;
+    publishedBlogs: number;
+    draftBlogs: number;
+    totalShares: number;
     messages: number;
     unreadMessages: number;
     totalViews: number;
