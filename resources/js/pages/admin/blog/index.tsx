@@ -1,6 +1,6 @@
 import AdminLayout from '@/layouts/admin-layout';
 import { Head, Link, router } from '@inertiajs/react';
-import { Copy, Edit3, Plus, Share2, Trash2 } from 'lucide-react';
+import { Copy, Edit3, LoaderCircle, Plus, Share2, Trash2, TriangleAlert } from 'lucide-react';
 
 type Post = {
     id: number;
@@ -9,6 +9,7 @@ type Post = {
     excerpt: string;
     is_published: boolean;
     is_featured: boolean;
+    cover_image_status: 'processing' | 'completed' | 'failed';
     reading_time: number;
     share_count: number;
     x_share_count: number;
@@ -32,6 +33,8 @@ export default function BlogIndex({ posts }: { posts: Pagination<Post> }) {
                                     <h2 className="truncate font-semibold text-surface-900">{post.title}</h2>
                                     <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${post.is_published ? 'bg-emerald-50 text-emerald-700' : 'bg-surface-100 text-surface-600'}`}>{post.is_published ? 'Published' : 'Draft'}</span>
                                     {post.is_featured && <span className="rounded-full bg-primary-50 px-2 py-0.5 text-xs font-medium text-primary-700">Featured</span>}
+                                    {post.cover_image_status === 'processing' && <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700"><LoaderCircle className="h-3 w-3 animate-spin" /> Cover processing</span>}
+                                    {post.cover_image_status === 'failed' && <span className="inline-flex items-center gap-1 rounded-full bg-danger-50 px-2 py-0.5 text-xs font-medium text-danger-600"><TriangleAlert className="h-3 w-3" /> Cover failed</span>}
                                 </div>
                                 <p className="mt-1 line-clamp-1 text-sm text-surface-500">{post.excerpt}</p>
                                 <p className="mt-2 text-xs text-surface-400">{post.reading_time} min read · Updated {new Date(post.updated_at).toLocaleDateString()}</p>
